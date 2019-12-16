@@ -3,19 +3,15 @@ import "./Components.scss";
 
 export default function PieceStand(props) {
   const pieces = props.pieceStand;
-  const highlightedType = props.selected ? props.selected.getPieceType() : null;
+  const highlightedType = 
+    (props.selected && props.selected.position[0] === null) ?
+    props.selected.getPieceType() : null;
 
   // NEED TO HANDLE PIECE SELECTION AND HIGHLIGHTING
   const handleClick = key => {
-    console.log("Stand piece clicked");
-    console.log("Checking if promotion option is active");
     if (props.promotionOption) {
-      console.log("Promotion option is active");
       return;
     }
-    console.log("Promotion option is not active");
-    console.log("Key:");
-    console.log(key);
     if (props.selected) {
       props.select(null);
     } else props.select(key);

@@ -40,30 +40,12 @@ class Piece {
 
   isMoveInBounds(move) {
     const conditions = [move[0] >= 0, move[0] <= 8, move[1] >= 0, move[1] <= 8];
-    console.log(`Checking if ${move} is in bounds...`);
-    console.log(
-      `${move} is in bounds: ${conditions.every(condition => condition)}`
-    );
 
     return conditions.every(condition => condition);
   }
 
   friendlyPieceCheck(board, move) {
     const moveSqr = board[move[0]][move[1]];
-
-    console.log(`Checking friendly piece collision for ${move}...`);
-    console.log("Piece at move:");
-    console.log(moveSqr);
-    console.log(`Move is empty square: ${moveSqr === emptySquare}`);
-    // The next condition will still log as true if the square is empty.
-    // This dones't affect the logic
-    console.log(`Move is enemy piece: ${moveSqr.isBlack !== this.isBlack}`);
-    console.log(
-      `Friendly fire: ${!(
-        moveSqr === emptySquare || moveSqr.isBlack !== this.isBlack
-      )}`
-    );
-
     return moveSqr === emptySquare || moveSqr.isBlack !== this.isBlack;
   }
 
@@ -80,9 +62,7 @@ class Piece {
   // Need to implement dropping options
   getPossibleActions(board) {
     // Get moves solely based on piece movement rules
-    console.log("Checking if piece is on piece stand");
     if (this.position[0] === null) {
-      console.log("Piece is on piece stand. Returning empty action array.");
       return [];
     }
     let totalMoves = null;
@@ -95,32 +75,22 @@ class Piece {
         ? this.possibleMoves(board)
         : this.possibleMoves();
     }
-    console.log("Getting moves...");
-    console.log(`Got possible moves: ${totalMoves}`);
-
     // Create actions from move arrays
     const actions = [];
     totalMoves.forEach(move => {
-      console.log("\n");
-      console.log(`Checking move ${move}`);
       // Filter out of bounds moves
       if (this.isMoveInBounds(move) && this.friendlyPieceCheck(board, move)) {
-        console.log("Checking if move is a capture move...");
         const captureMove = board[move[0]][move[1]] !== emptySquare;
-        console.log(`Move is a capture move: ${captureMove}`);
 
         // Include regular move
         const action = new Action(this.position, move, captureMove);
 
         // Include promotion option?
-        console.log("Checking for promotion option...");
         if (this.moveCanPromote(move)) {
-          console.log(`${move} is a promotion move. Setting promote option`);
           action.promote = true;
         }
-        console.log(`Adding ${move} to good moves`);
         actions.push(action);
-      } else console.log("Move not added to list");
+      }
     });
     return actions;
   }

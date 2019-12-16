@@ -17,10 +17,7 @@ export default function InfoBox(props) {
           <h3 className="prompt">Do you want to promote?</h3>
           <div className="buttons-box">
             <button
-              onClick={() => {
-                console.log("Code execution");
-                handleClicks(true);
-              }}
+              onClick={() => handleClicks(true)}
             >
               Yes
             </button>
