@@ -131,7 +131,16 @@ class Board {
       for (let j = 0; j < 9; j++) {
         const piece = this.board[i][j];
         if (piece !== emptySquare) {
-          piece.position = [i, j];
+          try {
+            piece.position = [i, j];
+          }
+          catch (e) {
+            console.log("Error in piece:");
+            console.log(piece);
+            console.log("Dumping board");
+            console.log(this.board);
+            throw TypeError;
+          }
         }
       }
     }
@@ -149,15 +158,29 @@ class Board {
     return emptySquares;
   }
 
+  shallowCopy() {
+    return new Board(this.board, this.pieceStands);
+  }
+
   copy() {
+    const newBoard = this.board.map(row => {
+      return row.map(cell => {
+        return (
+          cell === emptySquare ? 
+          emptySquare : cell.copy()
+        );
+      })
+    });
+    
     const stands = emptyPieceStands;
     for (let color in this.pieceStands) {
       for (let pieceType in this.pieceStands[color]) {
-        stands[color][pieceType] = [...this.pieceStands[color][pieceType]];
+        stands[color][pieceType] = 
+          this.pieceStands[color][pieceType].map(piece => piece.copy());
       }
     }
-
-    return new Board([...this.board], stands);
+    const newBoardObj = new Board(newBoard, stands);
+    return newBoardObj;
   }
 
   print() {

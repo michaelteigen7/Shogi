@@ -20,23 +20,15 @@ function App() {
   const [lastMove, setLastMove] = useState(null);
   const [promotionOption, togglePromotionOption] = useState(false);
 
-  const commit_action = (newBoard, overwrite = null) => {
-    console.log("Deepcopying board");
-    const boardCopy = board.copy();
-    console.log(boardCopy);
+  const commit_action = (newBoard, oldBoard, overwrite = null) => {
     console.log("Setting history");
-    setHistory(oldHistory => {
-      if (overwrite) {
-        console.log("Overwriting last history entry");
-        const newHistory = [...oldHistory];
-        newHistory[newHistory.length-1] = board.copy();
-        return newHistory;
-      } else return oldHistory.concat(board.copy());
-    });
+    if (!overwrite) {
+      setHistory(oldHistory => oldHistory.concat(oldBoard));
+    }
     setBoard(newBoard);
   };
 
-  // console.log(history);
+  console.log(history);
 
   // Add a piece to the opposing player's piece stand
   const handle_capture = (piece, newBoard) => {
@@ -58,6 +50,7 @@ function App() {
     const jMove = action.movePos[1];
     const piece = board.board[iCurrent][jCurrent];
 
+    // Need to deep-copy old board for history update
     console.log("Deepcopying board");
     const boardCopy = board.copy();
     console.log(boardCopy);
@@ -65,19 +58,22 @@ function App() {
     // Clear the selection
     select(null);
 
-    // Move piece to new position and update the piece's position property
-    const newBoard = board.copy();
+    // Need to shallow-copy old board for state update
+    console.log("Shallow-copying board")
+    const newBoard = board.shallowCopy();
+    console.log(newBoard);
 
     // Handle captured piece
     if (action.capture) {
       handle_capture(newBoard.board[iMove][jMove], newBoard);
     }
 
+    // Move piece to new position and update the piece's position property
     newBoard.board[iCurrent][jCurrent] = emptySquare;
     newBoard.board[iMove][jMove] = piece;
     piece.position = [iMove, jMove];
-    commit_action(newBoard);
-    
+
+    commit_action(newBoard, boardCopy);
     setLastMove(action);
     if (action.promote) {
       togglePromotionOption(true);
@@ -88,22 +84,31 @@ function App() {
     const i = lastMove.movePos[0];
     const j = lastMove.movePos[1];
 
-    const newBoard = board.copy();
+    const newBoard = board.shallowCopy();
     newBoard.board[i][j].isPromoted = true;
 
-    commit_action(newBoard, true);
+    const boardCopy = board.copy();
+    commit_action(newBoard, boardCopy, true);
   };
 
   const drop_piece = action => {
     const getPieceColor = piece => (piece.isBlack ? "black" : "white");
+    
+    // Get target square board coordinates
     const i = action.movePos[0];
     const j = action.movePos[1];
-    const newBoard = board.copy();
+    const boardCopy = board.copy();
+    const newBoard = board.shallowCopy();
+    
+    // Place the piece on the new board
     newBoard.board[i][j] = selected;
+    
+    // Remove a piece of the selected piece type off the piecestand
     newBoard.pieceStands[getPieceColor(selected)][
       selected.getPieceType()
     ].shift();
-    commit_action(newBoard);
+    
+    commit_action(newBoard, boardCopy);
   };
 
   // Object holds functions without return values

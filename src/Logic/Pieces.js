@@ -11,9 +11,19 @@ class Piece {
     this.promoStrRep = promoStrRep;
     this.isPromoted = false;
     this.isBlack = isBlack;
-    this.isOnBoard = true;
     this.isRanged = false;
     this.possibleMoveIndices = [];
+  }
+
+  copy() {
+    const newPiece = new this.constructor(this.strRep, this.promoStrRep, this.isBlack);
+    newPiece.position = [this.position[0], this.position[1]];
+    newPiece.isPromoted = this.isPromoted;
+    newPiece.isRanged = this.isRanged;
+
+    // This array value need not be deep-copied as it is final
+    newPiece.possibleMoveIndices = this.possibleMoveIndices;
+    return newPiece;
   }
 
   toString() {
