@@ -1,2 +1,0 @@
-# Shogi
-Created with CodeSandbox

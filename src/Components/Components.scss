@@ -1,0 +1,110 @@
+@import "./Variables";
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+#board-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;  // Necessary for vertical centering
+  justify-content: center; // Aligns content along the main axis
+  align-items: center; // aligns content along the secondary axis
+}
+
+// Grid column lines are currently messed up, but they will be invisible
+// in production
+#board {
+  margin: auto;
+  width: 100%;
+  height: 70%;
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  grid-auto-rows: 1fr; // Ensures that all cells are the same height
+  background-color: $wood-color;
+}
+
+.cell {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: solid 1px;
+  width: 100%;
+  height: 100%;
+  font-size: 2.5em;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; // Evenly spaces items throughout to the edges
+  height: 100vh;
+  width: 30%;
+}
+
+.piece-stand {
+  background-color: $wood-color;
+  width: 100%;
+  height: 30%;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+#left-panel {
+  .piece-stand {
+    order: 1;
+  }
+
+  .timer {
+    order: 2;
+  }
+
+  #info-box {
+    order: 3;
+  }
+}
+
+#right-panel {
+  .piece-stand {
+    order: 3;
+  }
+
+  .timer {
+    order: 2;
+  }
+
+  #info-box {
+    order: 1;
+  }
+}
+
+.droppable-piece {
+  display: flex;
+  font-size: 3vw;
+  margin: .5vh;
+}
+
+@media screen and(min-width: 2500px) {
+  #board {
+    width: 80%;
+    height: 90%;
+  }
+
+  .cell {
+    font-size: 3.5em;
+  }
+
+  .piece-stand {
+    height: 40%;
+  }
+}
+
+.buttons-box {
+  display: flex;
+
+  button {
+    margin: 5px;
+  }
+}

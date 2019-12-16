@@ -1,0 +1,15 @@
+$dark-wood-color: 	#a0522d;
+
+.App {
+  display: flex;
+  flex-direction: row;
+  background-color: $dark-wood-color;
+}
+
+#left-panel {
+  margin-right: 2%;
+}
+
+#right-panel {
+  margin-left: 2%;
+}
