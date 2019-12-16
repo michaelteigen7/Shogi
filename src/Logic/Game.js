@@ -106,6 +106,7 @@ const startBoard = [
 
 export { emptySquare, startBoard };
 
+
 const pieceStandList = () => ({
   Pawn: [],
   Knight: [],
@@ -146,6 +147,17 @@ class Board {
       }
     }
     return emptySquares;
+  }
+
+  copy() {
+    const stands = emptyPieceStands;
+    for (let color in this.pieceStands) {
+      for (let pieceType in this.pieceStands[color]) {
+        stands[color][pieceType] = [...this.pieceStands[color][pieceType]];
+      }
+    }
+
+    return new Board([...this.board], stands);
   }
 
   print() {

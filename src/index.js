@@ -10,7 +10,7 @@ function App() {
   // State
   const [board, setBoard] = useState(new Board(startBoard));
   // History is an array of board instances
-  const [history, setHistory] = useState([board]);
+  const [history, setHistory] = useState([]);
   // Selected is a Piece sub-class instance
   const [selected, select] = useState(null);
   // highlighted is a 9x9 array of booleans
@@ -20,13 +20,29 @@ function App() {
   const [lastMove, setLastMove] = useState(null);
   const [promotionOption, togglePromotionOption] = useState(false);
 
-  const commit_action = newBoard => {};
+  const commit_action = (newBoard, overwrite = null) => {
+    console.log("Deepcopying board");
+    const boardCopy = board.copy();
+    console.log(boardCopy);
+    console.log("Setting history");
+    setHistory(oldHistory => {
+      if (overwrite) {
+        console.log("Overwriting last history entry");
+        const newHistory = [...oldHistory];
+        newHistory[newHistory.length-1] = board.copy();
+        return newHistory;
+      } else return oldHistory.concat(board.copy());
+    });
+    setBoard(newBoard);
+  };
+
+  // console.log(history);
 
   // Add a piece to the opposing player's piece stand
   const handle_capture = (piece, newBoard) => {
     const color = piece.isBlack ? "white" : "black";
 
-    piece.position = [null, null]; // Piece board doesn't have a board position
+    piece.position = [null, null]; // Piece doesn't have a board position
     piece.isPromoted = false;
     piece.isBlack = !piece.isBlack; // Flip piece ownership
 
@@ -42,25 +58,26 @@ function App() {
     const jMove = action.movePos[1];
     const piece = board.board[iCurrent][jCurrent];
 
+    console.log("Deepcopying board");
+    const boardCopy = board.copy();
+    console.log(boardCopy);
+
     // Clear the selection
     select(null);
 
     // Move piece to new position and update the piece's position property
-    setBoard(prevBoard => {
-      const oldBoard = prevBoard;
-      const newBoard = new Board(oldBoard.board, oldBoard.pieceStands);
+    const newBoard = board.copy();
 
-      // Handle captured piece
-      if (action.capture) {
-        handle_capture(newBoard.board[iMove][jMove], newBoard);
-      }
+    // Handle captured piece
+    if (action.capture) {
+      handle_capture(newBoard.board[iMove][jMove], newBoard);
+    }
 
-      newBoard.board[iCurrent][jCurrent] = emptySquare;
-      newBoard.board[iMove][jMove] = piece;
-      piece.position = [iMove, jMove];
-      return newBoard;
-    });
-
+    newBoard.board[iCurrent][jCurrent] = emptySquare;
+    newBoard.board[iMove][jMove] = piece;
+    piece.position = [iMove, jMove];
+    commit_action(newBoard);
+    
     setLastMove(action);
     if (action.promote) {
       togglePromotionOption(true);
@@ -70,31 +87,23 @@ function App() {
   const promote_piece = () => {
     const i = lastMove.movePos[0];
     const j = lastMove.movePos[1];
-    setBoard(oldBoard => {
-      const newBoard = new Board(oldBoard.board, oldBoard.pieceStands);
-      newBoard.board[i][j].isPromoted = true;
 
-      setHistory(oldHistory => {
-        const newHistory = [...oldHistory];
-        newHistory[newHistory.length-1] = newBoard;
-        return newHistory;
-      });
-      return newBoard;
-    });
+    const newBoard = board.copy();
+    newBoard.board[i][j].isPromoted = true;
+
+    commit_action(newBoard, true);
   };
 
   const drop_piece = action => {
     const getPieceColor = piece => (piece.isBlack ? "black" : "white");
     const i = action.movePos[0];
     const j = action.movePos[1];
-    setBoard(oldBoard => {
-      const newBoard = new Board(oldBoard.board, oldBoard.pieceStands);
-      newBoard.board[i][j] = selected;
-      newBoard.pieceStands[getPieceColor(selected)][
-        selected.getPieceType()
-      ].shift();
-      return newBoard;
-    });
+    const newBoard = board.copy();
+    newBoard.board[i][j] = selected;
+    newBoard.pieceStands[getPieceColor(selected)][
+      selected.getPieceType()
+    ].shift();
+    commit_action(newBoard);
   };
 
   // Object holds functions without return values
