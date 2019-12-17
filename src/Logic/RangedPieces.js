@@ -107,9 +107,10 @@ class Bishop extends Piece {
   }
 
   promotedPossibleMoves(board) {
+    console.log("Getting promoted possible moves");
     return (
       this.possibleMoves(board)
-      .concat(getBlackOffsets([1,3,5,7]))
+      .concat(getBlackOffsets(this.position, [1,3,5,7]))
     );
   }
 }
@@ -165,7 +166,7 @@ class Rook extends Piece {
   promotedPossibleMoves(board) {
     return (
       this.possibleMoves(board)
-      .concat(getBlackOffsets([0,2,4,6]))
+      .concat(getBlackOffsets(this.position, [0,2,4,6]))
     );
   }
 }

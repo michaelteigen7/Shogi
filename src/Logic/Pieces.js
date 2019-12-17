@@ -66,7 +66,15 @@ class Piece {
   }
 
   moveCanPromote(move) {
-    return !this.isPromoted && (this.isBlack ? move[0] < 3 : move[0] > 5);
+    if (this.isPromoted) return false;
+    if (this.isBlack) {
+      return ((this.position[0] !== null && this.position[0] < 3) || move[0] < 3);
+    }
+    else {
+      return ((this.position[0] !== null && this.position[0] > 5) || move[0] > 5);
+    }
+    // return !this.isPromoted && (
+    //   this.isBlack ? move[0] < 3 : move[0] > 5);
   }
 
   getPossibleActions(board) {
