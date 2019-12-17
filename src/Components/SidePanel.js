@@ -4,12 +4,6 @@ import PieceStand from "./PieceStand";
 import InfoBox from "./InfoBox";
 
 export default function SidePanel(props) {
-  const debugWindow = () => {
-    return props.color === "white" ? (
-      <button onClick={() => console.clear()}>Clear console?</button>
-    ) : null;
-  };
-
   return (
     <div id={props.id} className="panel">
       <InfoBox
@@ -18,8 +12,9 @@ export default function SidePanel(props) {
         promotePiece={props.actions.promotePiece}
         selectPiece={props.state.selected.set}
         selectedPiece={props.state.selected.value}
+        color={props.color}
       />
-      <div className="timer">{debugWindow()}</div>
+      <div className="timer"></div>
       <PieceStand
         pieceStand={props.pieceStand}
         selected={props.state.selected.value}

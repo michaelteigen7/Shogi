@@ -32,15 +32,10 @@ export default function GamePiece(props) {
     return style;
   };
 
-  const getMoves = () => {
-    const possibleActions = props.piece.getPossibleActions(props.board);
-    return possibleActions;
-  };
-
   const highlight = () => {
     set_highlighted(prevState => {
       const newMatrix = [...prevState];
-      const moves = getMoves();
+      const moves = props.piece.getPossibleActions(props.board);
       set_possible_moves(moves);
       moves.forEach(move => {
         const i = move.movePos[0];
@@ -91,9 +86,8 @@ export default function GamePiece(props) {
     }
   };
 
-  const core_click_logic = () => {
-    if (isPieceSelected()) {
-      const dropAction = isPossibleDrop();
+  const move_logic = () => {
+    const dropAction = isPossibleDrop();
       if (!dropAction) {
         const action = isPossibleMove(props.boardPosition);
         if (action) {
@@ -103,25 +97,36 @@ export default function GamePiece(props) {
         props.actions.dropPiece(dropAction);
       }
       clear_state();
-      return true;
-    }
-    // This can be removed ater degubbing
-    else {
-      return false;
-    }
-  };
+  }
 
-  // When click, need to determine a logic tree
-  const handle_click = e => {
-    if (props.state.promotionOption.value) {
-      return;
-    }
-    if (!core_click_logic()) {
+  const click_logic = () => {
+    if (!isPieceSelected()) {
+      // If a piece isn't selected, and if the clicked square isn't
+      // empty, select the piece at that square
       if (props.piece !== emptySquare) {
         select(props.piece);
         highlight();
       }
+      return false;
+    } else return true;
+  };
+
+  // When click, need to determine a logic tree
+  const canClick = () => {
+    const mode = props.state.mode.value;
+    if (mode && mode.gameInProgress && !mode.isPlayersTurn) {
+      return false;
     }
+    if (props.state.promotionOption.value) return false;
+    return true;
+  }
+
+  const handle_click = e => {
+    const mode = props.state.mode.value;
+    if (!canClick()) {
+      return;
+    }
+    if (click_logic()) props.actions.do_action(move_logic);
   };
 
   return (

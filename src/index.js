@@ -4,31 +4,35 @@ import GameBoard from "./Components/GameBoard";
 import SidePanel from "./Components/SidePanel";
 import Board, { emptySquare, startBoard } from "./Logic/Game";
 import highlightMatrix from "./HighlightMatrix";
+import hash_board from "./Logic/HistoryTree";
+import {GameVAI, ReviewMode} from "./Mode"
 import "./main.scss";
+
+
+/*
+TODOS:
+-Fix Bug: moving out of the promotion zone does not offer a promotion option
+-Game mode
+-History control
+*/
 
 function App() {
   // State
   const [board, setBoard] = useState(new Board(startBoard));
-  // History is an array of board instances
-  const [history, setHistory] = useState([]);
-  // Selected is a Piece sub-class instance
+  // Mode is a game-flow-control object
+  const [mode, setMode] = useState(new ReviewMode());
+  // Selected is a Piece sub-class instance: it is a direct reference
+  // to the selected piece
   const [selected, select] = useState(null);
   // highlighted is a 9x9 array of booleans
   const [highlighted, setHighlighted] = useState(highlightMatrix);
   // possibleMoves is an array of actions
   const [possibleMoves, setPossibleMoves] = useState([]);
+  // Last move is a temporary variable until history control
+  // is properly implemented. It's only present use is
+  // in piece promotion
   const [lastMove, setLastMove] = useState(null);
   const [promotionOption, togglePromotionOption] = useState(false);
-
-  const commit_action = (newBoard, oldBoard, overwrite = null) => {
-    console.log("Setting history");
-    if (!overwrite) {
-      setHistory(oldHistory => oldHistory.concat(oldBoard));
-    }
-    setBoard(newBoard);
-  };
-
-  console.log(history);
 
   // Add a piece to the opposing player's piece stand
   const handle_capture = (piece, newBoard) => {
@@ -50,18 +54,11 @@ function App() {
     const jMove = action.movePos[1];
     const piece = board.board[iCurrent][jCurrent];
 
-    // Need to deep-copy old board for history update
-    console.log("Deepcopying board");
-    const boardCopy = board.copy();
-    console.log(boardCopy);
-
     // Clear the selection
     select(null);
 
     // Need to shallow-copy old board for state update
-    console.log("Shallow-copying board")
     const newBoard = board.shallowCopy();
-    console.log(newBoard);
 
     // Handle captured piece
     if (action.capture) {
@@ -73,7 +70,7 @@ function App() {
     newBoard.board[iMove][jMove] = piece;
     piece.position = [iMove, jMove];
 
-    commit_action(newBoard, boardCopy);
+    setBoard(newBoard);
     setLastMove(action);
     if (action.promote) {
       togglePromotionOption(true);
@@ -87,8 +84,7 @@ function App() {
     const newBoard = board.shallowCopy();
     newBoard.board[i][j].isPromoted = true;
 
-    const boardCopy = board.copy();
-    commit_action(newBoard, boardCopy, true);
+    setBoard(newBoard);
   };
 
   const drop_piece = action => {
@@ -97,7 +93,6 @@ function App() {
     // Get target square board coordinates
     const i = action.movePos[0];
     const j = action.movePos[1];
-    const boardCopy = board.copy();
     const newBoard = board.shallowCopy();
     
     // Place the piece on the new board
@@ -108,7 +103,7 @@ function App() {
       selected.getPieceType()
     ].shift();
     
-    commit_action(newBoard, boardCopy);
+    setBoard(newBoard);
   };
 
   // Object holds functions without return values
@@ -116,7 +111,9 @@ function App() {
     movePiece: move_piece,
     promotePiece: promote_piece,
     dropPiece: drop_piece,
-    clearHighlights: () => setHighlighted(highlightMatrix)
+    clearHighlights: () => setHighlighted(highlightMatrix),
+    create_game: () => setMode(new GameVAI()),
+    do_action: action => mode.do_action(action, board)
   };
 
   // Object holds references to states and state updaters
@@ -140,6 +137,10 @@ function App() {
     promotionOption: {
       value: promotionOption,
       set: togglePromotionOption
+    },
+    mode: {
+      value: mode,
+      set: setMode
     }
   };
 

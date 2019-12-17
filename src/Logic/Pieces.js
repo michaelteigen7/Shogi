@@ -69,12 +69,19 @@ class Piece {
     return !this.isPromoted && (this.isBlack ? move[0] < 3 : move[0] > 5);
   }
 
-  // Need to implement dropping options
   getPossibleActions(board) {
-    // Get moves solely based on piece movement rules
+    // Get dropping options
     if (this.position[0] === null) {
-      return [];
+      const emptySquares = board.getEmptySquareLocations();
+      return emptySquares.map(cell => {
+        const currPos = [null, null];
+        const dropPos = cell;
+        const capture = false;
+        const drop = true;
+        return new Action(currPos, dropPos, capture, drop);
+      });
     }
+    // Get moves solely based on piece movement rules
     let totalMoves = null;
     if (this.isPromoted) {
       totalMoves = this.isRanged

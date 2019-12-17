@@ -10,9 +10,26 @@ export default function InfoBox(props) {
     destroy_view();
   };
 
-  const promotionOptionBox = option => {
-    if (option) {
-      return (
+  const debugWindow = () => {
+    return props.color === "white" ? (
+      <button onClick={() => console.clear()}>Clear console?</button>
+    ) : null;
+  };
+
+  const historyNavigator = () => {
+    return props.color === "white" ? 
+      (
+        <div id="move-navigator">
+          <button>Previous</button>
+          <button>Next</button>
+        </div>
+      ) 
+      : null;
+    };
+
+  const promotionOptionBox = () => {
+      return props.promotionOption ? 
+      (
         <div id="promo-box">
           <h3 className="prompt">Do you want to promote?</h3>
           <div className="buttons-box">
@@ -24,11 +41,17 @@ export default function InfoBox(props) {
             <button onClick={() => handleClicks(false)}>No</button>
           </div>
         </div>
-      );
-    } else {
-      return <div />;
-    }
+      )
+      : null;
   };
 
-  return <div id="info-box">{promotionOptionBox(props.promotionOption)}</div>;
+  return (
+    <div 
+      id="info-box"
+    >
+      {promotionOptionBox()}
+      {historyNavigator()}
+      {debugWindow()}
+    </div>
+  );
 }

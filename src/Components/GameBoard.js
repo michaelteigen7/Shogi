@@ -33,6 +33,7 @@ export default function GameBoard(props) {
           })
         )}
       </div>
+      <button id="start-btn">Start Game</button>
     </div>
   );
 }

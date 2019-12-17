@@ -131,31 +131,21 @@ class Board {
       for (let j = 0; j < 9; j++) {
         const piece = this.board[i][j];
         if (piece !== emptySquare) {
-          try {
-            piece.position = [i, j];
-          }
-          catch (e) {
-            console.log("Error in piece:");
-            console.log(piece);
-            console.log("Dumping board");
-            console.log(this.board);
-            throw TypeError;
-          }
+          piece.position = [i, j];
         }
       }
     }
-  }
 
-  getEmptySquares() {
-    const emptySquares = [];
-    for (let i = 0; i < 9; i++) {
-      for (let j = 0; j < 9; j++) {
-        if (this.board[i][j] === emptySquare) {
-          emptySquares.push([i, j]);
+    this.board.getEmptySquareLocations = () => {
+      const emptyLocations = [];
+      for (let i = 0; i < 9; i++) {
+        for (let j = 0; j < 9; j++) {
+          if(this.board[i][j] === emptySquare) {
+            emptyLocations.push([i, j])
+          }
         }
       }
     }
-    return emptySquares;
   }
 
   shallowCopy() {
@@ -163,6 +153,7 @@ class Board {
   }
 
   copy() {
+    // copy board proper
     const newBoard = this.board.map(row => {
       return row.map(cell => {
         return (
@@ -172,6 +163,7 @@ class Board {
       })
     });
     
+    // copy piece stands
     const stands = emptyPieceStands;
     for (let color in this.pieceStands) {
       for (let pieceType in this.pieceStands[color]) {
@@ -187,6 +179,42 @@ class Board {
     for (let row of this.board) {
       console.log("| " + row.join(" | ") + " |");
     }
+  }
+  
+  getBlackPieces(black = true) {
+    const retArr = []
+    this.board.forEach(row => {
+      row.forEach(cell => {
+        if(cell !== emptySquare && cell.isBlack === black) {
+          retArr.push(cell);
+        }
+      })
+    })    
+    return retArr;
+  }
+
+  getBlackDrops(black = true) {
+    const color = black ? 'black' : 'white';
+    const pieceStand = this.pieceStands[color];
+    const dropActions = [];
+    for (let pieceType in pieceStand) {
+      for (let piece in pieceStand[pieceType]) {
+        dropActions.concat(piece.getPossibleActions(this.board));
+      }
+    }
+  }
+
+  getEngineActionChoices(engineIsBlack) {
+    const enginePieces = this.getBlackPieces(engineIsBlack);
+
+    const possibleMoves = [];
+    enginePieces.forEach(piece => {
+      piece.getPossibleActions(this.board).forEach(action => {
+        possibleMoves.push(action);
+      })
+    })
+
+    return possibleMoves.concat(this.getBlackDrops(this.board));
   }
 }
 

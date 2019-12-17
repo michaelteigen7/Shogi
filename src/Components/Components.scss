@@ -11,6 +11,7 @@
   flex-direction: column;  // Necessary for vertical centering
   justify-content: center; // Aligns content along the main axis
   align-items: center; // aligns content along the secondary axis
+  position: relative;
 }
 
 // Grid column lines are currently messed up, but they will be invisible
@@ -34,6 +35,7 @@
   width: 100%;
   height: 100%;
   font-size: 2.5em;
+  user-select: none; // prevents highlighting of fonts
 }
 
 .panel {
@@ -101,10 +103,15 @@
   }
 }
 
-.buttons-box {
-  display: flex;
+button {
+  margin: 5px;
+}
 
-  button {
-    margin: 5px;
-  }
+.buttons-box, #move-navigator {
+  display: flex;
+}
+
+#start-btn {
+  position: absolute;
+  bottom: 0;
 }
