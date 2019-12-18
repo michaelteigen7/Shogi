@@ -41,11 +41,7 @@ const moveOffsetsWhite = {
 }
 
 function getBlackOffsets(position, movesArr) {
-  console.log("Getting offsets");
-  console.log(movesArr);
-  console.log(position);
   return movesArr.map(moveIndex => {
-    console.log(`Move index: ${moveIndex}`);
       return moveOffsetsBlack[moveIndex](position)
     })
 }

@@ -124,9 +124,14 @@ const emptyPieceStands = {
 
 class Board {
   constructor(board, pieceStands = emptyPieceStands) {
+    // this.board is the 9x9 grid. Order of the pieces is crucial
     this.board = board;
+    // Piece stands are arrays for each piece type for each player.
+    // Order of the pieces within each piecetype is irrelevant
+    // As all the pieces within a common array should be identical
     this.pieceStands = pieceStands;
 
+    // Assign each piece its position relative to the board
     for (let i = 0; i < 9; i++) {
       for (let j = 0; j < 9; j++) {
         const piece = this.board[i][j];
@@ -136,6 +141,7 @@ class Board {
       }
     }
 
+    // Add method to get empty squares to the board array itself
     this.board.getEmptySquareLocations = () => {
       const emptyLocations = [];
       for (let i = 0; i < 9; i++) {
@@ -145,13 +151,16 @@ class Board {
           }
         }
       }
+      return emptyLocations;
     }
   }
 
+  // Create a new board object that retains old references to pieces
   shallowCopy() {
     return new Board(this.board, this.pieceStands);
   }
 
+  // Get a completely new, identical baord object with new pieces
   copy() {
     // copy board proper
     const newBoard = this.board.map(row => {
@@ -204,6 +213,7 @@ class Board {
     }
   }
 
+  // Supply the engine with a list of possible actions
   getEngineActionChoices(engineIsBlack) {
     const enginePieces = this.getBlackPieces(engineIsBlack);
 
@@ -216,6 +226,70 @@ class Board {
 
     return possibleMoves.concat(this.getBlackDrops(this.board));
   }
+
+  // ACTIONS
+  // Each action should deepcopy the baord, mutate that copy
+  // and return new board
+
+  move_piece(action) {
+    // Get references
+    const iCurrent = action.currPos[0];
+    const jCurrent = action.currPos[1];
+    const iMove = action.movePos[0];
+    const jMove = action.movePos[1];
+
+    // Need to deep-copy old board for state update
+    const newBoard = this.copy();
+    const piece = newBoard.board[iCurrent][jCurrent];
+
+    // Handle captured piece
+    if (action.capture) {
+      const capturedPiece = newBoard.board[iMove][jMove];
+      const color = capturedPiece.isBlack ? "white" : "black";
+
+      capturedPiece.position = [null, null]; // Piece doesn't have a board position
+      capturedPiece.isPromoted = false;
+      capturedPiece.isBlack = !capturedPiece.isBlack; // Flip piece ownership
+
+      const pieceStands = newBoard.pieceStands;
+      pieceStands[color][capturedPiece.getPieceType()].push(capturedPiece);
+    }
+
+    // Move piece to new position and update the piece's position property
+    newBoard.board[iCurrent][jCurrent] = emptySquare;
+    newBoard.board[iMove][jMove] = piece;
+    piece.position = [iMove, jMove];
+
+    return newBoard;
+  };
+
+    promote_piece(lastMove) {
+    const i = lastMove.movePos[0];
+    const j = lastMove.movePos[1];
+
+    const newBoard = this.copy();
+    newBoard.board[i][j].isPromoted = true;
+
+    return newBoard;
+  };
+
+    drop_piece(action) { 
+    // Get target square board coordinates
+    const i = action.movePos[0];
+    const j = action.movePos[1];
+    const newBoard = this.copy();
+    
+    // The array of the player's piecestand for a particular kind of piece
+    const pieceType = newBoard.pieceStands[action.pieceColor][action.pieceType];
+
+    // Place the piece on the new board
+    newBoard.board[i][j] = pieceType[0];
+    
+    // Remove a piece of the selected piece type off the piecestand
+    pieceType.shift();
+    
+    return newBoard;
+  };
 }
 
 export default Board;

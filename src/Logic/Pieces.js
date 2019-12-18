@@ -16,7 +16,7 @@ class Piece {
   }
 
   copy() {
-    const newPiece = new this.constructor(this.strRep, this.promoStrRep, this.isBlack);
+    const newPiece = new this.constructor(this.isBlack);
     newPiece.position = [this.position[0], this.position[1]];
     newPiece.isPromoted = this.isPromoted;
     newPiece.isRanged = this.isRanged;
@@ -36,6 +36,7 @@ class Piece {
 
   // To get possible moves. Will be overwritten in inheiritance
   /*
+  indices around piece at blank position:
   -------
   |0|1|2|
   |7| |3|

@@ -5,15 +5,15 @@ class Action {
     capture = false,
     drop = false,
     pieceType = null,
-    check = false
+    pieceColor = null
   ) {
     this.currPos = currPos;
     this.movePos = movePos;
     this.promote = false;
     this.drop = drop;
     this.capture = capture;
-    this.check = check;
     this.pieceType = pieceType;
+    this.pieceColor = pieceColor
   }
 }
 

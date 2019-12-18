@@ -71,12 +71,14 @@ export default function GamePiece(props) {
         const selectedPiece = props.state.selected.value;
         const capture = false;
         const drop = true;
+        const pieceColor = selectedPiece.isBlack ? 'black' : 'white';
         return new Action(
           selectedPiece.position,
           props.boardPosition,
           capture,
           drop,
-          selectedPiece.getPieceType()
+          selectedPiece.getPieceType(),
+          pieceColor
         );
       } else {
         return false;
