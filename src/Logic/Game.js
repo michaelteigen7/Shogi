@@ -245,14 +245,17 @@ class Board {
     // Handle captured piece
     if (action.capture) {
       const capturedPiece = newBoard.board[iMove][jMove];
-      const color = capturedPiece.isBlack ? "white" : "black";
-
-      capturedPiece.position = [null, null]; // Piece doesn't have a board position
+      
+      // Update piece properties post-capture
+      capturedPiece.isBlack = !capturedPiece.isBlack;
+      capturedPiece.position = [null, null];
       capturedPiece.isPromoted = false;
-      capturedPiece.isBlack = !capturedPiece.isBlack; // Flip piece ownership
 
+      // Place the piece on the capturing player's stand
+      const color = capturedPiece.getColor();
+      const type = capturedPiece.getPieceType();
       const pieceStands = newBoard.pieceStands;
-      pieceStands[color][capturedPiece.getPieceType()].push(capturedPiece);
+      pieceStands[color][type].push(capturedPiece);
     }
 
     // Move piece to new position and update the piece's position property
@@ -284,6 +287,9 @@ class Board {
 
     // Place the piece on the new board
     newBoard.board[i][j] = pieceType[0];
+
+    // Update piece position
+    newBoard.board[i][j].position = [i, j]
     
     // Remove a piece of the selected piece type off the piecestand
     pieceType.shift();

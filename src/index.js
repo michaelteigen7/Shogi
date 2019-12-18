@@ -11,7 +11,6 @@ import "./main.scss";
 
 /*
 TODOS:
--Fix bug: moving out of the promotion zone does not offer a promotion option
 -Fix bishop movement after drop in promotion zone
 -Game mode
 -History control
@@ -52,6 +51,8 @@ function App() {
   const drop_piece = action => {  
     setBoard(board.drop_piece(action));
   };
+
+  console.log(board.board);
 
   // Object holds functions without return values
   const actions = {

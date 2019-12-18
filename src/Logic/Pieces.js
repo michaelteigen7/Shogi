@@ -30,6 +30,10 @@ class Piece {
     return !this.isPromoted ? this.strRep : this.promoStrRep;
   }
 
+  getColor() {
+    return this.isBlack ? 'black' : 'white';
+  }
+
   getPieceType() {
     return this.constructor.name;
   }
