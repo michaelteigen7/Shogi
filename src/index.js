@@ -11,7 +11,6 @@ import "./main.scss";
 /*
 TODOS:
 -Game mode
-  -Need to allow for promotion
   -Promote option is currently not passed to the engine
 -History control
 */
@@ -35,11 +34,9 @@ function App() {
   const [promotionOption, togglePromotionOption] = useState(false);
 
   const move_piece = action => {
-    console.log("Updating values");
     select(null); // Clear the selection
     setLastMove(action); // record the last action for a promotion option
     setBoard(board.move_piece(action)); // update the rendered board
-    console.log("Updated values");
     // set the promotion option
     if (action.promote) {
       mode.promoOptionActive = true;
@@ -80,15 +77,10 @@ function App() {
   };
 
   useEffect(() => {
-    console.log("Entered useEffect");
     if (mode && mode.gameInProgress && !mode.isPlayersTurn) {
       const choices = board.getEngineActionChoices(false);
-      console.log("Got choices:");
-      console.log(choices);
       const actionRefs = {move: move_piece, drop: drop_piece};
       mode.take_turn(null, choices, actionRefs);
-    } else {
-      console.log(mode.isPlayersTurn);
     }
   }, [board, mode])
 

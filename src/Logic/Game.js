@@ -191,7 +191,6 @@ class Board {
   }
   
   getBlackPieces(black = false) {
-    console.log(`Getting drops for black: ${black}`);
     const retArr = []
     this.board.forEach(row => {
       row.forEach(cell => {
@@ -205,7 +204,6 @@ class Board {
 
   getBlackDrops(black = false) {
     const color = black ? 'black' : 'white';
-    console.log(`Getting drops for ${color}`);
     const pieceStand = this.pieceStands[color];
     const dropActions = [];
     for (let pieceType in pieceStand) {
@@ -229,20 +227,12 @@ class Board {
 
   // Supply the engine with a list of possible actions
   getEngineActionChoices(engineIsBlack) {
-    console.log("Getting moves for the engine");
     const enginePieces = this.getBlackPieces(engineIsBlack);
-    console.log("Got engine pieces:")
-    console.log(enginePieces);
 
     const possibleMoves = [];
     enginePieces.forEach(piece => {
-      console.log("Getting actions for:");
-      console.log(piece);
       try {
         piece.getPossibleActions(this.board).forEach(action => {
-          console.log("Action:");
-          console.log(action);
-          console.log("Pushing action:")
           possibleMoves.push(action);
         })
       }
@@ -318,7 +308,7 @@ class Board {
     // Place the piece on the new board
     newBoard.board[i][j] = pieceType[0];
     // Update piece position
-    newBoard.board[i][j].position = [i, j]
+    newBoard.board[i][j].position = [i, j];
     // Remove a piece of the selected piece type off the piecestand
     pieceType.shift();
     

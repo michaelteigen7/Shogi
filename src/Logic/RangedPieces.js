@@ -65,19 +65,15 @@ class Bishop extends Piece {
   // Check each diagonal direction, and go until you hit
   // the edge of the board or a piece
   possibleMoves(board) {
-    console.log("Getting possible moves for bishop");
     const moves = [];
     let i, j;
     const loop = (breakCondition, iterator) => {
       while (breakCondition(i, j)) {
-        console.log(`Break condition is ${breakCondition}`);
         moves.push([i, j]);
-        console.log(`Trying to get square [${i}, ${j}]`);
         try {
           if (board[i][j] !== emptySquare) break;
         }
         catch (TypeError) {
-          console.log("Error in bishop caught");
           if (board.baord[i][j] !== emptySquare) break;
         }
         iterator();
@@ -85,7 +81,6 @@ class Bishop extends Piece {
     }
 
     // up right
-    console.log("Getting up-right");
     i = this.position[0] - 1;
     j = this.position[1] + 1;
     loop((i, j) => i >= 0 && j <= 8, () => {
@@ -131,20 +126,15 @@ class Rook extends Piece {
   }
 
     possibleMoves(board) {
-    console.log("Getting possible moves for rook");
     const moves = [];
     let i, j;
     const loop = (breakCondition, iterator) => {
       while (breakCondition()) {
-        console.log(`Break condition is ${breakCondition}`);
         moves.push([i, j]);
-        console.log(`Trying to get square [${i} ${j}]`);
         try {
           if (!(board[i][j] === emptySquare)) break;
         }
         catch (e) {
-          console.log("Error in rook caught");
-          console.log(e);
           if (!(board.baord[i][j] === emptySquare)) break;
         }
         iterator();

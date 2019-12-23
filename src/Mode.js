@@ -12,7 +12,6 @@ class Mode {
 
   // Need to get this to write to history
   do_action(action) {
-    console.log("Entered do action function");
     action();
   }
 }
@@ -47,29 +46,23 @@ class GameVAI extends GameMode {
   }
 
   take_turn(action, possibleActions, actionRefs) {
-    console.log("Entered action taking function".toUpperCase());
     if(this.isPlayersTurn && action) {
       this.do_action(action);
-      console.log("Executed player action");
       if (!this.promoOptionActive) {
-        console.log("Flipping move token to false");
         this.isPlayersTurn = false;
       } else {
-        console.log("Allowing for promotion");
       }
     } else {
-      console.log("Engine will take an action:");
-      console.log(action);
       if (!actionRefs) throw TypeError;
       const engineChoice = this.engine.calculate(possibleActions);
       if (engineChoice.drop) {
-        console.log("Dropping piece");
         this.do_action(() => actionRefs.drop(engineChoice));
       } else {
-        console.log("Moving piece");
         this.do_action(() => actionRefs.move(engineChoice));
       }
-      console.log("Executed engine action");
+      if (engineChoice.promote) {
+        this.do_action(actionRefs.promotePiece(true));
+      }
       this.isPlayersTurn = true;
     }
   }

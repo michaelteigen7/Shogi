@@ -9,6 +9,11 @@ export default class Engine {
     const choice =  choices[Math.floor(Math.random() * (choices.length - 1))];
     console.log("Got engine choice:")
     console.log(choice);
+    console.log("Checking for promotion option");
+    if (choice.promote) {
+      if (Math.random() < 0.5) choice.promote = false;
+      else console.log("Choosing to promote"); 
+    }
     return choice;
   }
 }
