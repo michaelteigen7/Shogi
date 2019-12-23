@@ -6,13 +6,13 @@ export default function InfoBox(props) {
   };
 
   const handleClicks = promote => {
-    if (promote) props.promotePiece();
+    props.promotePiece(promote);
     destroy_view();
   };
 
   const debugWindow = () => {
     return props.color === "white" ? (
-      <button onClick={() => console.clear()}>Clear console?</button>
+      <button onClick={() => console.clear()}>Clear console</button>
     ) : null;
   };
 

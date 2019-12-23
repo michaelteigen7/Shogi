@@ -1,18 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import GameBoard from "./Components/GameBoard";
 import SidePanel from "./Components/SidePanel";
-import Board, { emptySquare, startBoard } from "./Logic/Game";
+import Board, { startBoard } from "./Logic/Game";
 import highlightMatrix from "./HighlightMatrix";
-import hash_board from "./Logic/HistoryTree";
 import {GameVAI, ReviewMode} from "./Mode"
 import "./main.scss";
 
 
 /*
 TODOS:
--Fix bishop movement after drop in promotion zone
 -Game mode
+  -Need to allow for promotion
+  -Promote option is currently not passed to the engine
 -History control
 */
 
@@ -35,24 +35,35 @@ function App() {
   const [promotionOption, togglePromotionOption] = useState(false);
 
   const move_piece = action => {
+    console.log("Updating values");
     select(null); // Clear the selection
     setLastMove(action); // record the last action for a promotion option
     setBoard(board.move_piece(action)); // update the rendered board
+    console.log("Updated values");
     // set the promotion option
     if (action.promote) {
+      mode.promoOptionActive = true;
       togglePromotionOption(true);
     }
   };
 
-  const promote_piece = () => {
-    setBoard(board.promote_piece(lastMove));
+  const promote_piece = acceptPromote => {
+    if (acceptPromote) {
+      setBoard(board.promote_piece(lastMove));
+    }
+    else {
+      setBoard(board.copy());
+    }
+    mode.promoOptionActive = false;
+    mode.isPlayersTurn = false;
+    // if (mode.gameInProgress) {
+    //   mode.isPlayersTurn = false;
+    // }
   };
 
   const drop_piece = action => {  
     setBoard(board.drop_piece(action));
   };
-
-  console.log(board.board);
 
   // Object holds functions without return values
   const actions = {
@@ -60,9 +71,26 @@ function App() {
     promotePiece: promote_piece,
     dropPiece: drop_piece,
     clearHighlights: () => setHighlighted(highlightMatrix),
-    create_game: () => setMode(new GameVAI()),
-    do_action: action => mode.do_action(action, board)
+    create_game: () => {
+      const newMode = new GameVAI();
+      newMode.start_game();
+      setMode(newMode);
+    },
+    do_action: action => mode.take_turn(action)
   };
+
+  useEffect(() => {
+    console.log("Entered useEffect");
+    if (mode && mode.gameInProgress && !mode.isPlayersTurn) {
+      const choices = board.getEngineActionChoices(false);
+      console.log("Got choices:");
+      console.log(choices);
+      const actionRefs = {move: move_piece, drop: drop_piece};
+      mode.take_turn(null, choices, actionRefs);
+    } else {
+      console.log(mode.isPlayersTurn);
+    }
+  }, [board, mode])
 
   // Object holds references to states and state updaters
   const state = {

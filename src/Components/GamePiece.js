@@ -117,6 +117,8 @@ export default function GamePiece(props) {
   const canClick = () => {
     const mode = props.state.mode.value;
     if (mode && mode.gameInProgress && !mode.isPlayersTurn) {
+      console.log("It's not your turn!");
+      console.log(mode);
       return false;
     }
     if (props.state.promotionOption.value) return false;

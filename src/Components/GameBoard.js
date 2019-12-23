@@ -33,7 +33,12 @@ export default function GameBoard(props) {
           })
         )}
       </div>
-      <button id="start-btn">Start Game</button>
+      <button 
+        id="start-btn" 
+        onClick={() => props.actions.create_game()}
+      >
+        Start Game
+      </button>
     </div>
   );
 }

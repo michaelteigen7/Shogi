@@ -190,7 +190,8 @@ class Board {
     }
   }
   
-  getBlackPieces(black = true) {
+  getBlackPieces(black = false) {
+    console.log(`Getting drops for black: ${black}`);
     const retArr = []
     this.board.forEach(row => {
       row.forEach(cell => {
@@ -202,26 +203,55 @@ class Board {
     return retArr;
   }
 
-  getBlackDrops(black = true) {
+  getBlackDrops(black = false) {
     const color = black ? 'black' : 'white';
+    console.log(`Getting drops for ${color}`);
     const pieceStand = this.pieceStands[color];
     const dropActions = [];
     for (let pieceType in pieceStand) {
-      for (let piece in pieceStand[pieceType]) {
-        dropActions.concat(piece.getPossibleActions(this.board));
+      for (let piece of pieceStand[pieceType]) {
+        try {
+          dropActions.concat(piece.getPossibleActions(this.board));
+        }
+        catch {
+          console.log("Error in getting piece drops:");
+          console.log(piece);
+          console.log("pieceStand");
+          console.log(pieceStand);
+          console.log("Piece type array:");
+          console.log(pieceStand[pieceType]);
+          throw TypeError;
+        }
       }
     }
+    return dropActions
   }
 
   // Supply the engine with a list of possible actions
   getEngineActionChoices(engineIsBlack) {
+    console.log("Getting moves for the engine");
     const enginePieces = this.getBlackPieces(engineIsBlack);
+    console.log("Got engine pieces:")
+    console.log(enginePieces);
 
     const possibleMoves = [];
     enginePieces.forEach(piece => {
-      piece.getPossibleActions(this.board).forEach(action => {
-        possibleMoves.push(action);
-      })
+      console.log("Getting actions for:");
+      console.log(piece);
+      try {
+        piece.getPossibleActions(this.board).forEach(action => {
+          console.log("Action:");
+          console.log(action);
+          console.log("Pushing action:")
+          possibleMoves.push(action);
+        })
+      }
+      catch (e) {
+        console.log("Error in getting piece actions:");
+        console.log(piece);
+        console.log(e);
+        throw TypeError;
+      }
     })
 
     return possibleMoves.concat(this.getBlackDrops(this.board));
@@ -287,10 +317,8 @@ class Board {
 
     // Place the piece on the new board
     newBoard.board[i][j] = pieceType[0];
-
     // Update piece position
     newBoard.board[i][j].position = [i, j]
-    
     // Remove a piece of the selected piece type off the piecestand
     pieceType.shift();
     
