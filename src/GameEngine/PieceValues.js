@@ -2,24 +2,22 @@ class PieceValues {
   constructor() {
     // As suggested by Tanigawa
     this.pieceValues = {
-      'Pawn': 1,
-      'Lance': 5,
-      'Knight': 6,
-      'Silver': 8,
-      'Gold': 9,
-      'Bishop': 13,
-      'Rook': 15,
-      'King': 0
+      0x1: 1, // Pawn
+      0x2 : 5, // Lance
+      0x3: 6, // Knight
+      0x4: 8, // Silver
+      0x5: 9, // Gold
+      0x6: 13, // Bishop
+      0x7: 15, // Rook
+      0x8: 0, // King
+      0x11: 12,
+      0x12: 10,
+      0x13: 10,
+      0x14: 9,
+      0x16: 15,
+      0x17: 17
     }
-
-    this.promotedPieceValues = {
-      'Pawn': 12,
-      'Lance': 10,
-      'Knight': 10,
-      'Silver': 9,
-      'Bishop': 15,
-      'Rook': 17
-    }
+    
     // Rook and bishop have more value if they are mobile.
     this.movementMultiplier = .01
   }

@@ -70,7 +70,7 @@ function App() {
     clearHighlights: () => setHighlighted(highlightMatrix),
     create_game: () => {
       // Player will go first by default
-      const playerIsBlack = true
+      const playerIsBlack = true;
       const newMode = new GameVAI(playerIsBlack);
       setBoard(new Board(startBoard));
       newMode.start_game();
@@ -85,7 +85,7 @@ function App() {
       const actionRefs = {move: move_piece, drop: drop_piece};
       mode.take_turn(null, choices, actionRefs, board);
     }
-  }, [board, mode])
+  }, [board, mode]);
 
   // Object holds references to states and state updaters
   const state = {

@@ -1,6 +1,7 @@
 import { Pawn, Silver, Gold, King } from "../Logic/Pieces";
 import { Bishop, Rook, Lance, Knight } from "../Logic/RangedPieces";
 import { emptySquare } from "../Logic/Game";
+import PieceValues from "./PieceValues";
 
 // Create pieces, which can be used as models
 const pieceRefs = {
@@ -30,29 +31,18 @@ const whitePieceCode = 0x100
 const promotedPieceCode = 0x10
 
 // Tranform the front-end object-filled board into an array of integers
-// and keep track of the positions of engine's pieces
+// and keep track of the positions of engine's pieces.
+// Board is a single array so that deep-copying isn't an issue.
 function encodeBoard(board, engineIsBlack) {
-  const emptyPieceStands = () => ({
-    0x1: 0,
-    0x2: 0,
-    0x3: 0,
-    0x4: 0,
-    0x5: 0,
-    0x6: 0,
-    0x7: 0,
-    0x8: 0
-  })
-
   const encodedBoard = [];
   const pieceStands = {
-    black: emptyPieceStands(),
-    white: emptyPieceStands()
-  };
+    black: [],
+    white: []
+  }
   const enginePiecePositions = [];
 
   // Set up board
   for (let row of board.board) {
-    const rank = [];
     for (let piece of row) {
       if (piece === emptySquare) continue;
       // Encode piece type
@@ -61,16 +51,16 @@ function encodeBoard(board, engineIsBlack) {
       // Encode piece color
       const pieceColor = piece.isBlack;
       pieceCode = pieceColor ? pieceCode : pieceCode + whitePieceCode;
-      if (pieceColor === engineIsBlack) {
-        enginePiecePositions.push(piece.position)
-      }
       
       // Encode piece promotion status
       pieceCode = piece.isPromoted ? pieceCode + promotedPieceCode : pieceCode;
       
-      rank.push(pieceCode);
+      encodedBoard.push(pieceCode);
+
+      if (pieceColor === engineIsBlack) {
+        enginePiecePositions.push([piece.position, pieceCode]);
+      }
     }
-    encodedBoard.push(rank);
   }
 
   // Set up piecestands
@@ -80,10 +70,12 @@ function encodeBoard(board, engineIsBlack) {
         // Encode piece type
         let pieceCode = pieceCodes[pieceType];
 
-        pieceCode = piece.isBlack ? pieceCode : pieceCode + whitePieceCode;
+        const pieceIsBlack = piece.isBlack;
+        const pieceColor = pieceIsBlack ? 'black' : 'white';
+        pieceCode = pieceIsBlack ? pieceCode : pieceCode + whitePieceCode;
         pieceCode = piece.isPromoted ? pieceCode + promotedPieceCode : pieceCode;
         
-        pieceStands[color][pieceCodes[pieceType]]++;
+        pieceStands[pieceColor].push(pieceCode);
       }
     }
   }
@@ -96,6 +88,86 @@ class EngineBoard {
     this.board = board
     this.pieceStands = pieceStands;
     this.enginePiecePositions = enginePiecePositions;
+  }
+
+  // Baord is a single array, but the x-coordfinate can be multiplied
+  // by 8 to represent an 8x8 array
+  getPiece(position) {
+    return this.board[(8 * position[0]) + position[1]];
+  }
+
+  getPieceType(pieceCode) {
+    return pieceCode & 0xf;
+  }
+
+  pieceIsBlack(pieceCode) {
+    return (pieceCode & 0xf00) !== 0x100;
+  }
+
+  pieceIsPromoted(pieceCode) {
+    return (pieceCode & 0xf0) !== 0x10;
+  }
+
+  // Iterate over the board and sum piece values
+  getScore(board, engineIsBlack) {
+    let engineScore = 0;
+    for (let piece of this.board) {
+        if (piece === emptySquare) continue;
+        const pieceIsBlack = this.pieceIsBlack(piece);
+        // Map the piece to a value
+        piece &= 0xff;
+        const pieceValue = PieceValues.getPieceValue(piece);
+        // Change the score by the piece value and ownership
+        engineScore = engineIsBlack === pieceIsBlack ?
+          engineScore + pieceValue :
+          engineScore - pieceValue;
+      }
+    return engineScore;
+  }
+
+  set_piece(position, pieceCode) {
+    this.board[(8 * position[0]) + position[1]] = pieceCode;
+  }
+
+  move_piece(action, engineIsBlack) {
+    const currPos = action.currPos;
+    let pieceCode = this.getPiece(currPos);
+
+    // Handle piece capture
+    if (action.capture) {
+      const capturedPiece = this.getPiece(action.movePos);
+      const pieceColor = this.pieceIsBlack(capturedPiece) ?
+        'black' : 'white';
+      this.pieceStands[pieceColor].push(this.getPieceType(capturedPiece));
+    }
+
+    // Handle promotion option
+    if (action.promote) {
+      pieceCode |= 0x10;
+    }
+
+    // Clear the space
+    this.set_piece(currPos, 0);
+
+    // Move the moving piece
+    this.set_piece(action.movePos, pieceCode);
+  }
+
+  drop_piece(action) {
+    const pieceType = pieceCodes[action.pieceType];
+    // Encode the color
+    const pieceCode = action.pieceColor === 'black' ? 
+      pieceType : pieceType + 0x100;
+    // Drop the piece
+    this.set_piece(action.movePos, pieceCode);
+
+    const remove = (array, element) => {
+      const index = array.indexOf(element);
+      if (index < 0) throw TypeError;
+      array.spice(index, 1);
+    }
+    // Remove the piece from the piecestand
+    remove(this.pieceStands[action.pieceColor], pieceType);
   }
 }
 

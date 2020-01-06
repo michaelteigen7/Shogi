@@ -28,22 +28,30 @@ class ReviewMode extends Mode {
 }
 
 class GameMode extends Mode {
+  constructor(playerPlaysBlack) {
+    super();
+    this.playerIsBlack = playerPlaysBlack;
+  }
+
   start_game() {
     this.gameInProgress = true;
     console.log("Game started!");
+    if (!this.playerIsBlack) {
+      this.isPlayersTurn = false;
+    }
     console.log(`Player's turn: ${this.isPlayersTurn}`);
   }
 
   // Need to implement endgame logic later
   checkWinCondition(board) {
-    return false
+    return false;
   }
 }
 
 class GameVAI extends GameMode {
   constructor(playerIsBlack) {
-    super();
-    this.engine = new Engine(playerIsBlack);
+    super(playerIsBlack);
+    this.engine = new Engine(this.playerIsBlack);
   }
 
   take_turn(action, possibleActions, actionRefs, board) {

@@ -1,5 +1,3 @@
-import PieceValues from "./PieceValues";
-import { emptySquare } from "../Logic/Game";
 import { encodeBoard, EngineBoard } from "./EngineBoard";
 
 // This will cause the whole application to freeze while it works
@@ -25,31 +23,14 @@ export default class Engine {
     return choice;
   }
 
-  // Iterate over the board and sum piece values
-  getScore(board, engineIsBlack) {
-    let engineScore = 0;
-    for (let row of board.board) {
-      for (let piece of row) {
-        if (piece === emptySquare) continue;
-        // Map the piece to a value
-        const pieceValue = PieceValues.getPieceValue(piece.getPieceType(), 
-          piece.isPromoted);
-        // Change the score by the piece value and ownership
-        engineScore = engineIsBlack === piece.isBlack ?
-          engineScore + pieceValue :
-          engineScore - pieceValue;
-      }
-    }
-    return engineScore;
-  }
-
   calculate(choices, board) {
-    console.log("Getting engine score:");
-    console.log(this.getScore(board, this.color));
-
     console.log("Encoding board");
     const encodedBoard = encodeBoard(board, this.color);
-    console.log(encodedBoard);
+    const engineBoard = new EngineBoard(...encodedBoard);
+    console.log(engineBoard);
+
+    console.log("Getting engine score:");
+    console.log(engineBoard.getScore(engineBoard, this.color));
 
     return this.calculateRandom(choices);
   }
