@@ -69,7 +69,10 @@ function App() {
     dropPiece: drop_piece,
     clearHighlights: () => setHighlighted(highlightMatrix),
     create_game: () => {
-      const newMode = new GameVAI();
+      // Player will go first by default
+      const playerIsBlack = true
+      const newMode = new GameVAI(playerIsBlack);
+      setBoard(new Board(startBoard));
       newMode.start_game();
       setMode(newMode);
     },
@@ -80,7 +83,7 @@ function App() {
     if (mode && mode.gameInProgress && !mode.isPlayersTurn) {
       const choices = board.getEngineActionChoices(false);
       const actionRefs = {move: move_piece, drop: drop_piece};
-      mode.take_turn(null, choices, actionRefs);
+      mode.take_turn(null, choices, actionRefs, board);
     }
   }, [board, mode])
 

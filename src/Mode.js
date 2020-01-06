@@ -34,18 +34,19 @@ class GameMode extends Mode {
     console.log(`Player's turn: ${this.isPlayersTurn}`);
   }
 
+  // Need to implement endgame logic later
   checkWinCondition(board) {
     return false
   }
 }
 
 class GameVAI extends GameMode {
-  constructor() {
+  constructor(playerIsBlack) {
     super();
-    this.engine = new Engine();
+    this.engine = new Engine(playerIsBlack);
   }
 
-  take_turn(action, possibleActions, actionRefs) {
+  take_turn(action, possibleActions, actionRefs, board) {
     if(this.isPlayersTurn && action) {
       this.do_action(action);
       if (!this.promoOptionActive) {
@@ -54,7 +55,7 @@ class GameVAI extends GameMode {
       }
     } else {
       if (!actionRefs) throw TypeError;
-      const engineChoice = this.engine.calculate(possibleActions);
+      const engineChoice = this.engine.calculate(possibleActions, board);
       if (engineChoice.drop) {
         this.do_action(() => actionRefs.drop(engineChoice));
       } else {
