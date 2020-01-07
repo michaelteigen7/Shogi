@@ -1,4 +1,4 @@
-import { encodeBoard, EngineBoard } from "./EngineBoard";
+import encodeBoard from "./EngineBoard";
 
 // This will cause the whole application to freeze while it works
 export default class Engine {
@@ -24,14 +24,22 @@ export default class Engine {
   }
 
   calculate(choices, board) {
-    console.log("Encoding board");
-    const encodedBoard = encodeBoard(board, this.color);
-    const engineBoard = new EngineBoard(...encodedBoard);
-    console.log(engineBoard);
+    const engineBoard = encodeBoard(board, this.color);
 
     console.log("Getting engine score:");
-    console.log(engineBoard.getScore(engineBoard, this.color));
+    console.log(engineBoard.getScore(this.color));
 
-    return this.calculateRandom(choices);
+    const engineMove = this.calculateRandom(choices);
+
+    if (!engineMove.drop) {
+      engineBoard.move_piece(engineMove);
+    } else {
+      engineBoard.drop_piece(engineMove);
+    }
+
+    console.log("Commited action to board");
+    engineBoard.print();
+
+    return engineMove
   }
 }

@@ -140,19 +140,6 @@ class Board {
         }
       }
     }
-
-    // Add method to get empty squares to the board array itself
-    this.board.getEmptySquareLocations = () => {
-      const emptyLocations = [];
-      for (let i = 0; i < 9; i++) {
-        for (let j = 0; j < 9; j++) {
-          if(this.board[i][j] === emptySquare) {
-            emptyLocations.push([i, j])
-          }
-        }
-      }
-      return emptyLocations;
-    }
   }
 
   // Create a new board object that retains old references to pieces
