@@ -31,10 +31,9 @@ const whitePieceCode = 0x100
 const promotedPieceCode = 0x10
 
 class EngineBoard {
-  constructor(board, pieceStands, enginePiecePositions) {
+  constructor(board : number[], pieceStands : object) {
     this.board = board
     this.pieceStands = pieceStands;
-    this.enginePiecePositions = enginePiecePositions;
   }
 
   // Baord is a single array, but the x-coordfinate can be multiplied
@@ -137,7 +136,6 @@ export default function encodeBoard(board, engineIsBlack) {
     black: [],
     white: []
   }
-  const enginePiecePositions = [];
 
   // Set up board
   console.log(board.board);
@@ -158,10 +156,6 @@ export default function encodeBoard(board, engineIsBlack) {
       pieceCode = piece.isPromoted ? pieceCode + promotedPieceCode : pieceCode;
       
       encodedBoard.push(pieceCode);
-
-      if (pieceColor === engineIsBlack) {
-        enginePiecePositions.push([piece.position, pieceCode]);
-      }
     }
   }
 
@@ -182,5 +176,5 @@ export default function encodeBoard(board, engineIsBlack) {
     }
   }
   
-  return new EngineBoard(encodedBoard, pieceStands, enginePiecePositions);
+  return new EngineBoard(encodedBoard, pieceStands);
 }

@@ -1,8 +1,9 @@
 import encodeBoard from "./EngineBoard";
+import {ActionDef} from "../Definitions";
 
 // This will cause the whole application to freeze while it works
 export default class Engine {
-  constructor(playerIsBlack) {
+  constructor(playerIsBlack : boolean) {
     console.log('Constructing engine');
     this.color = !playerIsBlack
     console.log(`Engine is black: ${this.color}`);
@@ -11,7 +12,7 @@ export default class Engine {
     this.isThinking = false;
   }
 
-  calculateRandom(choices) {
+  calculateRandom(choices : ActionDef[]) {
     const choice =  choices[Math.floor(Math.random() * (choices.length - 1))];
     console.log("Got engine choice:");
     console.log(choice);
@@ -23,7 +24,7 @@ export default class Engine {
     return choice;
   }
 
-  calculate(choices, board) {
+  calculate(choices: ActionDef[], board) {
     const engineBoard = encodeBoard(board, this.color);
 
     console.log("Getting engine score:");

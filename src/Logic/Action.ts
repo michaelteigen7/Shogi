@@ -1,4 +1,6 @@
-class Action {
+import { ActionDef } from "../Definitions";
+
+class Action implements ActionDef {
   constructor(
     currPos,
     movePos,

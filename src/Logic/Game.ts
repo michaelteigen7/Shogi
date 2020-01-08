@@ -1,111 +1,8 @@
 import { Pawn, Silver, Gold, King } from "./Pieces";
 import { Bishop, Rook, Lance, Knight } from "./RangedPieces";
+import {ActionDef} from "../Definitions";
 
 const emptySquare = " ";
-const startBoard = [
-  [
-    new Lance(false),
-    new Knight(false),
-    new Silver(false),
-    new Gold(false),
-    new King(false),
-    new Gold(false),
-    new Silver(false),
-    new Knight(false),
-    new Lance(false)
-  ],
-  [
-    emptySquare,
-    new Rook(false),
-    emptySquare,
-    emptySquare,
-    emptySquare,
-    emptySquare,
-    emptySquare,
-    new Bishop(false),
-    emptySquare
-  ],
-  [
-    new Pawn(false),
-    new Pawn(false),
-    new Pawn(false),
-    new Pawn(false),
-    new Pawn(false),
-    new Pawn(false),
-    new Pawn(false),
-    new Pawn(false),
-    new Pawn(false)
-  ],
-  [
-    emptySquare,
-    emptySquare,
-    emptySquare,
-    emptySquare,
-    emptySquare,
-    emptySquare,
-    emptySquare,
-    emptySquare,
-    emptySquare
-  ],
-  [
-    emptySquare,
-    emptySquare,
-    emptySquare,
-    emptySquare,
-    emptySquare,
-    emptySquare,
-    emptySquare,
-    emptySquare,
-    emptySquare
-  ],
-  [
-    emptySquare,
-    emptySquare,
-    emptySquare,
-    emptySquare,
-    emptySquare,
-    emptySquare,
-    emptySquare,
-    emptySquare,
-    emptySquare
-  ],
-  [
-    new Pawn(true),
-    new Pawn(true),
-    new Pawn(true),
-    new Pawn(true),
-    new Pawn(true),
-    new Pawn(true),
-    new Pawn(true),
-    new Pawn(true),
-    new Pawn(true)
-  ],
-  [
-    emptySquare,
-    new Bishop(true),
-    emptySquare,
-    emptySquare,
-    emptySquare,
-    emptySquare,
-    emptySquare,
-    new Rook(true),
-    emptySquare
-  ],
-  [
-    new Lance(true),
-    new Knight(true),
-    new Silver(true),
-    new Gold(true),
-    new King(true),
-    new Gold(true),
-    new Silver(true),
-    new Knight(true),
-    new Lance(true)
-  ]
-];
-
-export { emptySquare, startBoard };
-
 
 const pieceStandList = () => ({
   Pawn: [],
@@ -117,13 +14,98 @@ const pieceStandList = () => ({
   Rook: []
 });
 
-const emptyPieceStands = {
+const emptyPieceStands = () => ({
   black: pieceStandList(),
   white: pieceStandList()
-};
+});
+
+function decodeBoard(engineBoard : number[], enginePieceStands: object) {
+  const gameBoard = [];
+  const pieceStands = emptyPieceStands();
+
+  const constructorsFromInt = {
+      0x1 : Pawn,
+      0x2 : Lance,
+      0x3 : Knight,
+      0x4 : Silver,
+      0x5 : Gold,
+      0x6 : Bishop,
+      0x7 : Rook,
+      0x8 : King
+    };
+  
+  const constructorsFromString = {
+    'Pawn' : Pawn,
+    'Lance' : Lance,
+    'Knight' : Knight,
+    'Silver' : Silver,
+    'Gold' : Gold,
+    'Bishop' : Bishop,
+    'Rook' : Rook,
+    'King' : King
+  }
+
+  const createPiece = (isBlack : boolean, isPromoted : boolean, 
+    type : number | string) => {
+    return typeof type === 'number' ?
+      new constructorsFromInt[type](isBlack, isPromoted) :
+      new constructorsFromString[type](isBlack, isPromoted);
+  };
+
+  // Build board
+  let k = 0;
+  for (let i = 0; i < 9; i++) {
+    let row = [];
+    for (let j = 0; j < 9; j++) {
+      const pieceCode = engineBoard[k];
+      let piece;
+      if (pieceCode === 0) {
+        piece = emptySquare;
+      }
+      else {
+        piece = createPiece(
+          (pieceCode & 0xf00) !== 0x100, 
+          (pieceCode & 0xf0) === 0x10, 
+          pieceCode & 0xf
+        );
+      }
+      row.push(piece);
+      k++;
+    }
+    gameBoard.push(row);
+  }
+
+  // Build piece stands
+  for (let color in enginePieceStands) {
+    for (let pieceType in enginePieceStands[color]) {
+      for (let pieces in enginePieceStands[color][pieceType]) {
+        for (let i = 0; i < pieces; i++) {
+          const piece = createPiece(color === 'black', false, pieceType);
+          pieceStands[color][pieceType].push(piece);
+        }
+      }
+    }
+  }
+  
+  return [gameBoard, pieceStands];
+}
+
+const startBoard = decodeBoard([
+    0x102, 0x103, 0x104, 0x105, 0x108, 0x105, 0x104, 0x103, 0x102,
+    0x0, 0x107, 0x0, 0x0, 0x0, 0x0, 0x0, 0x106, 0x0,
+    0x101, 0x101, 0x101, 0x101, 0x101, 0x101, 0x101, 0x101, 0x101,
+    0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+    0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+    0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+    0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1,
+    0x0, 0x6, 0x0, 0x0, 0x0, 0x0, 0x0, 0x7, 0x0,
+    0x2, 0x3, 0x4, 0x5, 0x8, 0x5, 0x4, 0x3, 0x2
+  ])[0];
+
+export { emptySquare, startBoard };
 
 class Board {
-  constructor(board, pieceStands = emptyPieceStands) {
+  constructor(board : Array<Array<object>>, pieceStands = emptyPieceStands()) {
     // this.board is the 9x9 grid. Order of the pieces is crucial
     this.board = board;
     // Piece stands are arrays for each piece type for each player.
@@ -141,6 +123,7 @@ class Board {
       }
     }
   }
+
 
   // Create a new board object that retains old references to pieces
   shallowCopy() {
@@ -160,7 +143,7 @@ class Board {
     });
     
     // copy piece stands
-    const stands = emptyPieceStands;
+    const stands = emptyPieceStands();
     for (let color in this.pieceStands) {
       for (let pieceType in this.pieceStands[color]) {
         stands[color][pieceType] = 
@@ -213,7 +196,7 @@ class Board {
   }
 
   // Supply the engine with a list of possible actions
-  getEngineActionChoices(engineIsBlack) {
+  getEngineActionChoices(engineIsBlack : boolean) {
     const enginePieces = this.getBlackPieces(engineIsBlack);
 
     const possibleMoves = [];
@@ -238,7 +221,7 @@ class Board {
   // Each action should deepcopy the baord, mutate that copy
   // and return new board
 
-  move_piece(action) {
+  move_piece(action : ActionDef) {
     // Get references
     const iCurrent = action.currPos[0];
     const jCurrent = action.currPos[1];
@@ -273,7 +256,7 @@ class Board {
     return newBoard;
   };
 
-    promote_piece(lastMove) {
+    promote_piece(lastMove : ActionDef) {
     const i = lastMove.movePos[0];
     const j = lastMove.movePos[1];
 
@@ -283,7 +266,7 @@ class Board {
     return newBoard;
   };
 
-    drop_piece(action) { 
+    drop_piece(action : ActionDef) { 
     // Get target square board coordinates
     const i = action.movePos[0];
     const j = action.movePos[1];

@@ -5,13 +5,13 @@ import {emptySquare} from "./Game";
 // and loop over board squares in specific directions
 
 class Lance extends Piece {
-  constructor(isBlack) {
-    super("香", "仝", isBlack);
+  constructor(isBlack : boolean, isPromoted = false) {
+    super("香", "仝", isBlack, isPromoted);
     this.isRanged = true;
   }
 
   // Go up (black) or down (white) until you hit a piece or edge
-  possibleMoves(board) {
+  possibleMoves(board : Array<Array<object>>) {
     const moves = [];
     const j = this.position[1];
     if (this.isBlack) {
@@ -34,8 +34,8 @@ class Lance extends Piece {
 // possible moves method, but I do not give it the ranged property,
 // because it doesn't require the board to be passed its class
 class Knight extends Piece {
-  constructor(isBlack) {
-    super("桂", "今", isBlack);
+  constructor(isBlack: boolean, isPromoted = false) {
+    super("桂", "今", isBlack, isPromoted);
   }
 
   possibleMoves() {
@@ -57,14 +57,14 @@ class Knight extends Piece {
 }
 
 class Bishop extends Piece {
-  constructor(isBlack) {
-    super("角", "馬", isBlack);
+  constructor(isBlack: boolean, isPromoted = false) {
+    super("角", "馬", isBlack, isPromoted);
     this.isRanged = true;
   }
 
   // Check each diagonal direction, and go until you hit
   // the edge of the board or a piece
-  possibleMoves(board) {
+  possibleMoves(board : object) {
     const moves = [];
     let i, j;
     const loop = (breakCondition, iterator) => {
@@ -74,7 +74,7 @@ class Bishop extends Piece {
           if (board[i][j] !== emptySquare) break;
         }
         catch (TypeError) {
-          if (board.baord[i][j] !== emptySquare) break;
+          if (board.board[i][j] !== emptySquare) break;
         }
         iterator();
       }
@@ -111,7 +111,7 @@ class Bishop extends Piece {
     return moves;
   }
 
-  promotedPossibleMoves(board) {
+  promotedPossibleMoves(board : Array<Array<object>>) {
     return (
       this.possibleMoves(board)
       .concat(getBlackOffsets(this.position, [1,3,5,7]))
@@ -120,8 +120,8 @@ class Bishop extends Piece {
 }
 
 class Rook extends Piece {
-  constructor(isBlack) {
-    super("飛", "竜", isBlack);
+  constructor(isBlack, isPromoted = false) {
+    super("飛", "竜", isBlack, isPromoted);
     this.isRanged = true;
   }
 
@@ -172,7 +172,7 @@ class Rook extends Piece {
     return moves;
   }
 
-  promotedPossibleMoves(board) {
+  promotedPossibleMoves(board : Array<Array<object>>) {
     return (
       this.possibleMoves(board)
       .concat(getBlackOffsets(this.position, [0,2,4,6]))

@@ -5,14 +5,15 @@ import { emptySquare } from "./Game";
 const goldIndices = [0, 1, 2, 3, 5, 7];
 
 class Piece {
-  constructor(strRep, promoStrRep, isBlack) {
-    this.position = [null, null];
-    this.strRep = strRep;
-    this.promoStrRep = promoStrRep;
-    this.isPromoted = false;
-    this.isBlack = isBlack;
-    this.isRanged = false;
-    this.possibleMoveIndices = [];
+  constructor(strRep : string, promoStrRep : string, isBlack : boolean, 
+    isPromoted = false) {
+      this.position = [null, null];
+      this.strRep = strRep;
+      this.promoStrRep = promoStrRep;
+      this.isPromoted = isPromoted;
+      this.isBlack = isBlack;
+      this.isRanged = false;
+      this.possibleMoveIndices = [];
   }
 
   copy() {
@@ -53,13 +54,13 @@ class Piece {
       : getWhiteOffsets(this.position, this.possibleMoveIndices);
   }
 
-  isMoveInBounds(move) {
+  isMoveInBounds(move: number[]) {
     const conditions = [move[0] >= 0, move[0] <= 8, move[1] >= 0, move[1] <= 8];
 
     return conditions.every(condition => condition);
   }
 
-  friendlyPieceCheck(board, move) {
+  friendlyPieceCheck(board: Array<Array<number>>, move: number[]) {
     const moveSqr = board[move[0]][move[1]];
     return moveSqr === emptySquare || moveSqr.isBlack !== this.isBlack;
   }
@@ -70,7 +71,7 @@ class Piece {
       : getWhiteOffsets(this.position, goldIndices);
   }
 
-  moveCanPromote(move) {
+  moveCanPromote(move: number[]) {
     if (this.isPromoted) return false;
     if (this.isBlack) {
       return ((this.position[0] !== null && this.position[0] < 3) || move[0] < 3);
@@ -82,7 +83,7 @@ class Piece {
     //   this.isBlack ? move[0] < 3 : move[0] > 5);
   }
 
-  getPossibleActions(board) {
+  getPossibleActions(board : object) {
     // Get dropping options
     if (this.position[0] === null) {
       const emptySquares = board.getEmptySquareLocations();
@@ -127,21 +128,21 @@ class Piece {
 }
 
 class Pawn extends Piece {
-  constructor(isBlack) {
-    super("歩", "と", isBlack);
+  constructor(isBlack : boolean, isPromoted = false) {
+    super("歩", "と", isBlack, isPromoted);
     this.possibleMoveIndices = [1];
   }
 }
 
 class Silver extends Piece {
-  constructor(isBlack) {
-    super("銀", "全", isBlack);
+  constructor(isBlack : boolean, isPromoted = false) {
+    super("銀", "全", isBlack, isPromoted);
     this.possibleMoveIndices = [0, 1, 2, 6, 4];
   }
 }
 
 class Gold extends Piece {
-  constructor(isBlack) {
+  constructor(isBlack : boolean) {
     super("金", "", isBlack);
     this.possibleMoveIndices = goldIndices;
   }
@@ -152,7 +153,7 @@ class Gold extends Piece {
 }
 
 class King extends Piece {
-  constructor(isBlack) {
+  constructor(isBlack : boolean) {
     super("王", "", isBlack);
     this.whiteStrRep = "玉";
     this.possibleMoveIndices = [0, 1, 2, 3, 4, 5, 6, 7];

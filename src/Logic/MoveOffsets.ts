@@ -40,13 +40,13 @@ const moveOffsetsWhite = {
   2: position => [position[0]+1, position[1]-1]
 }
 
-function getBlackOffsets(position, movesArr) {
+function getBlackOffsets(position : number[], movesArr : number[]) {
   return movesArr.map(moveIndex => {
       return moveOffsetsBlack[moveIndex](position)
     })
 }
 
-function getWhiteOffsets(position, movesArr) {
+function getWhiteOffsets(position : number[], movesArr : number[]) {
   return movesArr.map(moveIndex => moveOffsetsWhite[moveIndex](position))
 }
 
