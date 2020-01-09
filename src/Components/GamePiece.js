@@ -72,11 +72,13 @@ export default function GamePiece(props) {
         const selectedPiece = props.state.selected.value;
         const capture = false;
         const drop = true;
+        const promote = false;
         return new Action(
           selectedPiece.position,
           props.boardPosition,
           capture,
           drop,
+          promote,
           selectedPiece.getPieceType(),
           selectedPiece.getColor()
         );

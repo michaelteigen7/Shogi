@@ -1,6 +1,6 @@
 export interface ActionDef {
-  currPos : Array<number, number>,
-  movePos  : Array<number, number>,
+  currPos : [number, number],
+  movePos  : [number, number],
   capture : boolean,
   drop : boolean,
   pieceType : string | null,
@@ -10,4 +10,14 @@ export interface ActionDef {
 export interface GameBoard {
   board : Array<Array<object>>,
   pieceStands : object
+}
+
+export interface PieceDef {
+  position: [number, number] | null[],
+  strRep: string,
+  promoStrRep: string,
+  isPromoted: boolean,
+  isBlack: boolean,
+  isRanged: false,
+  possibleMoveIndices: number[],
 }

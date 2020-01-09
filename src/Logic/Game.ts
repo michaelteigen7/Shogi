@@ -1,6 +1,6 @@
-import { Pawn, Silver, Gold, King } from "./Pieces";
-import { Bishop, Rook, Lance, Knight } from "./RangedPieces";
-import {ActionDef} from "../Definitions";
+import { Pawn, Knight, Silver, Gold, King } from "./Pieces";
+import { Bishop, Rook, Lance } from "./RangedPieces";
+import {ActionDef, GameBoard} from "../Definitions";
 
 const emptySquare = " ";
 
@@ -104,7 +104,7 @@ const startBoard = decodeBoard([
 
 export { emptySquare, startBoard };
 
-class Board {
+class Board implements GameBoard {
   constructor(board : Array<Array<object>>, pieceStands = emptyPieceStands()) {
     // this.board is the 9x9 grid. Order of the pieces is crucial
     this.board = board;
@@ -123,7 +123,6 @@ class Board {
       }
     }
   }
-
 
   // Create a new board object that retains old references to pieces
   shallowCopy() {

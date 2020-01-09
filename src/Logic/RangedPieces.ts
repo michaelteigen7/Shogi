@@ -1,8 +1,12 @@
 import Piece from "./Pieces";
-import {getBlackOffsets} from "./MoveOffsets";
-import {emptySquare} from "./Game";
+import { getBlackOffsets } from "./MoveOffsets";
+import { emptySquare } from "./Game";
 // This set of pieces will all overwrite the possibleMoves method
 // and loop over board squares in specific directions
+// Ranged pieces possibleMove getters need to consider several moves
+// in certain directions and need to stop at friendly fire or a piece capture
+// Knight is not a ranged piece because it does not need to consider
+// whether pieces are in the way of its jump
 
 class Lance extends Piece {
   constructor(isBlack : boolean, isPromoted = false) {
@@ -27,32 +31,6 @@ class Lance extends Piece {
       }
     }
     return moves;
-  }
-}
-
-// I include the Knight piece here because its class overwrites the
-// possible moves method, but I do not give it the ranged property,
-// because it doesn't require the board to be passed its class
-class Knight extends Piece {
-  constructor(isBlack: boolean, isPromoted = false) {
-    super("桂", "今", isBlack, isPromoted);
-  }
-
-  possibleMoves() {
-    // Move Offsets only captures squares one space away
-    const i = this.position[0];
-    const j = this.position[1];
-    if (this.isBlack) {
-      return [
-        [i-2, j-1],
-        [i-2, j+1]
-      ];
-    } else {
-        return [
-          [i+2, j-1],
-          [i+2, j+1]
-        ];
-    }
   }
 }
 
@@ -180,4 +158,4 @@ class Rook extends Piece {
   }
 }
 
-export {Lance, Knight, Bishop, Rook}
+export {Lance, Bishop, Rook}

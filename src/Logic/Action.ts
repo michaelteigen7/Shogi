@@ -2,17 +2,16 @@ import { ActionDef } from "../Definitions";
 
 class Action implements ActionDef {
   constructor(
-    currPos,
-    movePos,
+    public currPos,
+    public movePos,
     capture = false,
     drop = false,
+    promote = false,
     pieceType = null,
     pieceColor = null
   ) {
-    this.currPos = currPos;
-    this.movePos = movePos;
-    this.promote = false;
     this.drop = drop;
+    this.promote = promote;
     this.capture = capture;
     this.pieceType = pieceType;
     this.pieceColor = pieceColor

@@ -1,19 +1,7 @@
-import { Pawn, Silver, Gold, King } from "../Logic/Pieces";
-import { Bishop, Rook, Lance, Knight } from "../Logic/RangedPieces";
 import { emptySquare } from "../Logic/Game";
 import PieceValues from "./PieceValues";
-
-// Create pieces, which can be used as models
-const pieceRefs = {
-  'Pawn': new Pawn(),
-  'Lance': new Lance(),
-  'Knight': new Knight(),
-  'Silver': new Silver(),
-  'Gold': new Gold(),
-  'Bishop': new Bishop(),
-  'Rook': new Rook(),
-  'King': new King()
-}
+import { ActionDef } from "../Definitions";
+import getPossibleMoves from "./PieceActions";
 
 // Less computationally intense to represent pieces as integers
 const pieceCodes = {
@@ -27,42 +15,44 @@ const pieceCodes = {
   'King': 0x8
 };
 
-const whitePieceCode = 0x100
-const promotedPieceCode = 0x10
+const whitePieceCode = 0x100;
+const promotedPieceCode = 0x10;
 
 class EngineBoard {
-  constructor(board : number[], pieceStands : object) {
-    this.board = board
-    this.pieceStands = pieceStands;
+  constructor(public board : number[], public pieceStands : object) {
   }
 
-  // Baord is a single array, but the x-coordfinate can be multiplied
+  // Board is a single array, but the x-coordfinate can be multiplied
   // by 8 to represent an 8x8 array
-  getPiece(position) {
+  getPiece(position : [number, number]) : number {
     return this.board[(9 * position[0]) + position[1]];
   }
 
-  getPieceType(pieceCode) {
+  getPieceType(pieceCode : number) : number {
     return pieceCode & 0xf;
   }
 
-  pieceIsBlack(pieceCode) {
+  pieceIsBlack(pieceCode : number) : boolean {
     return (pieceCode & 0xf00) !== 0x100;
   }
 
-  pieceIsPromoted(pieceCode) {
-    return (pieceCode & 0xf0) !== 0x10;
+  pieceIsPromoted(pieceCode : number) : boolean {
+    return (pieceCode & 0xf0) === 0x10;
+  }
+
+  getCoordinates(index) {
+    return [parseInt(index / 8, 10), index % 8]
   }
 
   // Iterate over the board and sum piece values
-  getScore(engineIsBlack) {
+  getScore(engineIsBlack : boolean) : number {
     let engineScore = 0;
     for (let piece of this.board) {
         if (piece === 0) continue;
-        const pieceIsBlack = this.pieceIsBlack(piece);
+        const pieceIsBlack : boolean = this.pieceIsBlack(piece);
         // Map the piece to a value
         piece &= 0xff;
-        const pieceValue = PieceValues.getPieceValue(piece);
+        const pieceValue : number = PieceValues.getPieceValue(piece);
         // Change the score by the piece value and ownership
         engineScore = engineIsBlack === pieceIsBlack ?
           engineScore + pieceValue :
@@ -71,17 +61,28 @@ class EngineBoard {
     return engineScore;
   }
 
-  set_piece(position, pieceCode) {
+  set_piece(position : [number, number], pieceCode : number) : void {
     this.board[(9 * position[0]) + position[1]] = pieceCode;
   }
 
-  move_piece(action) {
+  possibleMoves() : ActionDef[] {
+    const actions = []
+    for (let i = 0; i < this.board.length; i++) {
+      const pieceCode = this.board[i];
+      if (pieceCode !== emptySquare) {
+        actions.concat(getPossibleMoves(pieceCode, this.getCoordinates(i), this));
+      }
+    }
+    return actions;
+  }
+
+  move_piece(action : ActionDef) : void {
     const currPos = action.currPos;
-    let pieceCode = this.getPiece(currPos);
+    let pieceCode : number = this.getPiece(currPos);
 
     // Handle piece capture
     if (action.capture) {
-      const capturedPiece = this.getPiece(action.movePos);
+      const capturedPiece : number = this.getPiece(action.movePos);
       const pieceColor = this.pieceIsBlack(capturedPiece) ?
         'black' : 'white';
       this.pieceStands[pieceColor].push(this.getPieceType(capturedPiece));
@@ -99,10 +100,10 @@ class EngineBoard {
     this.set_piece(action.movePos, pieceCode);
   }
 
-  drop_piece(action) {
+  drop_piece(action : ActionDef) : void {
     const pieceType = pieceCodes[action.pieceType];
     // Encode the color
-    const pieceCode = action.pieceColor === 'black' ? 
+    const pieceCode : number = action.pieceColor === 'black' ? 
       pieceType : pieceType + 0x100;
     // Drop the piece
     this.set_piece(action.movePos, pieceCode);
@@ -116,7 +117,7 @@ class EngineBoard {
     remove(this.pieceStands[action.pieceColor], pieceType);
   }
 
-  print() {
+  print() : void {
     for (let i = 0; i < 9; i++) {
       const rank = []
       for (let j = 0; j < 9; j++) {
@@ -130,7 +131,7 @@ class EngineBoard {
 // Tranform the front-end object-filled board into an array of integers
 // and keep track of the positions of engine's pieces.
 // Board is a single array so that deep-copying isn't an issue.
-export default function encodeBoard(board, engineIsBlack) {
+export default function encodeBoard(board : object, engineIsBlack : boolean) {
   const encodedBoard = [];
   const pieceStands = {
     black: [],

@@ -1,17 +1,15 @@
 import Action from "./Action";
 import { getBlackOffsets, getWhiteOffsets } from "./MoveOffsets";
 import { emptySquare } from "./Game";
+import { PieceDef, ActionsDef } from "../Definitions"
 
 const goldIndices = [0, 1, 2, 3, 5, 7];
 
-class Piece {
-  constructor(strRep : string, promoStrRep : string, isBlack : boolean, 
-    isPromoted = false) {
+class Piece implements PieceDef {
+  constructor(public strRep : string, public promoStrRep : string, 
+    public isBlack : boolean, isPromoted = false) {
       this.position = [null, null];
-      this.strRep = strRep;
-      this.promoStrRep = promoStrRep;
       this.isPromoted = isPromoted;
-      this.isBlack = isBlack;
       this.isRanged = false;
       this.possibleMoveIndices = [];
   }
@@ -79,11 +77,9 @@ class Piece {
     else {
       return ((this.position[0] !== null && this.position[0] > 5) || move[0] > 5);
     }
-    // return !this.isPromoted && (
-    //   this.isBlack ? move[0] < 3 : move[0] > 5);
   }
 
-  getPossibleActions(board : object) {
+  getPossibleActions(board : object) : ActionsDef[] {
     // Get dropping options
     if (this.position[0] === null) {
       const emptySquares = board.getEmptySquareLocations();
@@ -134,6 +130,13 @@ class Pawn extends Piece {
   }
 }
 
+class Knight extends Piece {
+  constructor(isBlack: boolean, isPromoted = false) {
+    super("桂", "今", isBlack, isPromoted);
+    this.possibleMoveIndices = [8, 9];
+  }
+}
+
 class Silver extends Piece {
   constructor(isBlack : boolean, isPromoted = false) {
     super("銀", "全", isBlack, isPromoted);
@@ -171,4 +174,4 @@ class King extends Piece {
 }
 
 export default Piece;
-export { Pawn, Silver, Gold, King };
+export { Pawn, Knight, Silver, Gold, King };

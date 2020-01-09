@@ -22,7 +22,7 @@ class PieceValues {
     this.movementMultiplier = .01
   }
 
-  getPieceValue = (pieceType, isPromoted) => {
+  getPieceValue = (pieceType : number[], isPromoted : boolean) => {
     return isPromoted ?
       this.promotedPieceValues[pieceType] :
       this.pieceValues[pieceType]
