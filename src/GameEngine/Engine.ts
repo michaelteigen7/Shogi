@@ -24,11 +24,11 @@ export default class Engine {
     return choice;
   }
 
-  calculate(choices: ActionDef[], board) {
+  calculate(board) {
     const engineBoard = encodeBoard(board, this.color);
 
-    console.log("Getting engine score:");
-    console.log(engineBoard.getScore(this.color));
+    console.log("Possible moves for white:");
+    const choices = engineBoard.possibleActions(false);
 
     const engineMove = this.calculateRandom(choices);
 

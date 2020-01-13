@@ -3,7 +3,7 @@ export interface ActionDef {
   movePos  : [number, number],
   capture : boolean,
   drop : boolean,
-  pieceType : string | null,
+  pieceType : string | number | null,
   pieceColor : string | null
 };
 

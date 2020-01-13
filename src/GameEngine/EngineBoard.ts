@@ -1,7 +1,8 @@
 import { emptySquare } from "../Logic/Game";
 import PieceValues from "./PieceValues";
 import { ActionDef } from "../Definitions";
-import getPossibleMoves from "./PieceActions";
+import getPossibleMoves from "./PieceMoves";
+import getDrops from "./PieceDrops";
 
 // Less computationally intense to represent pieces as integers
 const pieceCodes = {
@@ -17,6 +18,7 @@ const pieceCodes = {
 
 const whitePieceCode = 0x100;
 const promotedPieceCode = 0x10;
+const emptySquareCode = 0x0;
 
 class EngineBoard {
   constructor(public board : number[], public pieceStands : object) {
@@ -40,8 +42,8 @@ class EngineBoard {
     return (pieceCode & 0xf0) === 0x10;
   }
 
-  getCoordinates(index) {
-    return [parseInt(index / 8, 10), index % 8]
+  getCoordinates(index) : [number, number] {
+    return [parseInt(index / 9, 10), index % 9]
   }
 
   // Iterate over the board and sum piece values
@@ -65,15 +67,19 @@ class EngineBoard {
     this.board[(9 * position[0]) + position[1]] = pieceCode;
   }
 
-  possibleMoves() : ActionDef[] {
-    const actions = []
+  possibleActions(isBlacksTurn : boolean) : ActionDef[] {
+    const colorCode = isBlacksTurn ? 0 : 0x100;
+    let actions = [];
     for (let i = 0; i < this.board.length; i++) {
       const pieceCode = this.board[i];
-      if (pieceCode !== emptySquare) {
-        actions.concat(getPossibleMoves(pieceCode, this.getCoordinates(i), this));
+      if (pieceCode !== emptySquare && ((pieceCode & 0xf00) === colorCode)) {
+        actions = actions.concat(getPossibleMoves(pieceCode, this.getCoordinates(i), this));
       }
     }
-    return actions;
+
+    console.log("Got white moves: ");
+    console.log(actions);
+    return actions.concat(getDrops(this, isBlacksTurn));
   }
 
   move_piece(action : ActionDef) : void {
@@ -83,9 +89,10 @@ class EngineBoard {
     // Handle piece capture
     if (action.capture) {
       const capturedPiece : number = this.getPiece(action.movePos);
-      const pieceColor = this.pieceIsBlack(capturedPiece) ?
-        'black' : 'white';
-      this.pieceStands[pieceColor].push(this.getPieceType(capturedPiece));
+      // Set the piece on the opposite player's piece stand
+      const newPieceColor = this.pieceIsBlack(capturedPiece) ?
+        'white' : 'black';
+      this.pieceStands[newPieceColor].push(this.getPieceType(capturedPiece));
     }
 
     // Handle promotion option
@@ -101,7 +108,16 @@ class EngineBoard {
   }
 
   drop_piece(action : ActionDef) : void {
-    const pieceType = pieceCodes[action.pieceType];
+    // Action may come from player or from the engine
+    // player piece types will eb string encoded, 
+    // while those from the engine will be integers
+    let pieceType : number; 
+    if (typeof action.pieceType === 'string') {
+      pieceType = pieceCodes[action.pieceType];
+    } else {
+      pieceType = action.pieceType;
+    }
+    
     // Encode the color
     const pieceCode : number = action.pieceColor === 'black' ? 
       pieceType : pieceType + 0x100;
@@ -139,11 +155,10 @@ export default function encodeBoard(board : object, engineIsBlack : boolean) {
   }
 
   // Set up board
-  console.log(board.board);
   for (let row of board.board) {
     for (let piece of row) {
       if (piece === emptySquare) {
-        encodedBoard.push(0x0);
+        encodedBoard.push(emptySquareCode);
         continue;
       }
       // Encode piece type

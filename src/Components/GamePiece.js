@@ -65,33 +65,27 @@ export default function GamePiece(props) {
     return false;
   };
 
-  const isPossibleDrop = () => {
-    if (isPieceDroppable()) {
-      if (props.piece === emptySquare) {
-        // Create a drop option
-        const selectedPiece = props.state.selected.value;
-        const capture = false;
-        const drop = true;
-        const promote = false;
-        return new Action(
-          selectedPiece.position,
-          props.boardPosition,
-          capture,
-          drop,
-          promote,
-          selectedPiece.getPieceType(),
-          selectedPiece.getColor()
-        );
-      } else {
-        return false;
-      }
-    } else {
-      return false;
-    }
+  const getPossibleDrop = () => {
+    if (isPieceDroppable() && props.piece === emptySquare) {
+      // Create a drop option
+      const selectedPiece = props.state.selected.value;
+      const capture = false;
+      const drop = true;
+      const promote = false;
+      return new Action(
+        selectedPiece.position,
+        props.boardPosition,
+        capture,
+        drop,
+        promote,
+        selectedPiece.getPieceType(),
+        selectedPiece.getColor()
+      );
+    } else return false;
   };
 
   const move_logic = () => {
-    const dropAction = isPossibleDrop();
+    const dropAction = getPossibleDrop();
       if (!dropAction) {
         const action = isPossibleMove(props.boardPosition);
         if (action) {
@@ -104,15 +98,22 @@ export default function GamePiece(props) {
   }
 
   const click_logic = () => {
-    if (!isPieceSelected()) {
+    if (!isPieceSelected() && props.piece !== emptySquare) {
       // If a piece isn't selected, and if the clicked square isn't
-      // empty, select the piece at that square
-      if (props.piece !== emptySquare) {
-        select(props.piece);
-        highlight();
-      }
+      // empty select the piece at that square
+      select(props.piece);
+      highlight();
       return false;
-    } else return true;
+    } 
+    else if (props.piece === props.state.selected.value) {
+      // if a piece is selected and the clicked square is that same
+      // piece, then clear the highlighting and selected piece
+      if (props.piece === props.state.selected.value) {
+        clear_state();
+        return false;
+      }
+    }
+    else return true;
   };
 
   // When click, need to determine a logic tree
@@ -120,15 +121,13 @@ export default function GamePiece(props) {
     const mode = props.state.mode.value;
     if (mode && mode.gameInProgress && !mode.isPlayersTurn) {
       console.log("It's not your turn!");
-      console.log(mode);
       return false;
     }
-    if (props.state.promotionOption.value) return false;
-    return true;
+    // Player must choose whether to promote before taking another action
+    return !props.state.promotionOption.value;
   }
 
   const handle_click = e => {
-    const mode = props.state.mode.value;
     if (!canClick()) {
       return;
     }

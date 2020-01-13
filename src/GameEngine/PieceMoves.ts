@@ -1,7 +1,6 @@
 import getOffsets from "../Logic/MoveOffsets";
 import Action from "../Logic/Action";
 import { ActionDef } from "../Definitions";
-import { emptySquare } from "../Logic/Game";
 
 function inBounds(movePos : [number, number]) : boolean {
   return (
@@ -26,21 +25,28 @@ function moveCanPromote(pieceCode : number, currPos : [number, number],
 // Get possible actions, given move coordinates
 function moveFilter(board : object, movePos: [number, number], 
   currPos : [number, number]) : ActionDef | boolean {
+    console.log("Entering moveFilter function")
     if (!inBounds(movePos)) return false;
 
     const cappedPiece = board.getPiece(movePos);
     const piece = board.getPiece(currPos)
     const isPieceBlack = board.pieceIsBlack(piece);
-    if (cappedPiece === emptySquare) {
+    if (cappedPiece === 0) {
+      console.log(`Square with code ${cappedPiece} is empty`);
       return moveCanPromote(cappedPiece, currPos, movePos, isPieceBlack) ?
         new Action(currPos, movePos, false, false, true) : 
         new Action(currPos, movePos);
     } 
     else {
       // Check friendly fire
+      console.log(`Checking for friendly fire at movePos: ${movePos}`);
+      console.log(`Moving piece is black: ${isPieceBlack}`);
+      console.log(`Moved to piece is black: ${board.pieceIsBlack(cappedPiece)}`);
       if (isPieceBlack === board.pieceIsBlack(cappedPiece)) {
+        console.log("Friendly fire: true");
         return false;
       } else {
+        console.log("Friendly fire: false");
         // If not friendly fire and not empty square, then capture
         return moveCanPromote(piece, currPos, movePos, isPieceBlack) ?
           new Action(currPos, movePos, true, false, true) : 
@@ -50,30 +56,42 @@ function moveFilter(board : object, movePos: [number, number],
 }
 
 const getMoves = (indices, position, board) => {
-  const actions = []
+  const actions = [];
   // Array.filter doesn't allow for implicit truthiness check
   const pieceIsBlack = board.pieceIsBlack(board.getPiece(position));
   for (let moveCoord of getOffsets(position, indices, pieceIsBlack)) {
     const action = moveFilter(board, moveCoord, position);
     if (action) actions.push(action);
   }
+  console.log(`Returning moves for piece with code ${board.getPiece(position).toString(16)}`);
+  console.log(actions);
   return actions;
 }
 
 function getRangedMoves(offsetLambdas, currPos : [number, number], 
   board : object) : ActionDef[] {
+    console.log(`Entering ranged moves function for piece with code ${board.getPiece(currPos).toString(16)}`);
     // Loop over the directives in each lamda function and create actions
     const actions = [];
-    for (let lambda in offsetLambdas) {
+    console.log("Entering lambdas loop");
+    for (let lambda of offsetLambdas) {
+      console.log("Checking next lambda");
       let position = [...currPos];
+      console.log(`creating action with currPos: ${position}`);
       let action = moveFilter(board, lambda(position), currPos);
       while (action) {
+        console.log(action);
+        console.log(`action with movePos ${action.movePos} above is good`);
+        console.log(`current position is ${position}`);
         actions.push(action);
         if (action.capture) break;
         position = [...action.movePos];
         action = moveFilter(board, lambda(position), currPos);
       }
+      console.log(`Action with movePos ${action.movePos} above is a breakpoint`);
     }
+    console.log(`Returning ranged moves for piece with code ${board.getPiece(currPos).toString(16)}`);
+    console.log(actions);
     return actions;
   }
 
@@ -121,6 +139,7 @@ const moveFunctions = {
 
   // Bishop and Rook
   0x16: (position, board) => {
+    console.log('PASSING LAMBDAS FOR A PROMOTED BISHOP');
     const lambdas = [
       currPos => [currPos[0] - 1, currPos[1] - 1],
       currPos => [currPos[0] + 1, currPos[1] + 1],
@@ -132,6 +151,7 @@ const moveFunctions = {
     return unpromoteActions.concat(promoteActions);
   },
   0x17: (position, board) => {
+    console.log('PASSING LAMBDAS FOR A PROMOTED ROOK');
     const lambdas = [
       currPos => [currPos[0] - 1, currPos[1]],
       currPos => [currPos[0] + 1, currPos[1]],
@@ -145,8 +165,13 @@ const moveFunctions = {
 };
 
 export default function getPossibleMoves(pieceCode: number, currPos : [number, number], 
-  board : object) {
+  board : object) : ActionDef[] {
+    console.log("\n");
+    console.log(`GETTING MOVES FOR PIECE WITH CODE ${pieceCode.toString(16)}`);
+    console.log(`Piece is at position: ${currPos}`);
     // pop off color code to map to a function
     const code = pieceCode & 0xff;
+    console.log("Calling this function to get piece moves:");
+    console.log(moveFunctions[code]);
     return moveFunctions[code](currPos, board);
 }

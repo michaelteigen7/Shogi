@@ -4,14 +4,17 @@ import GameBoard from "./Components/GameBoard";
 import SidePanel from "./Components/SidePanel";
 import Board, { startBoard } from "./Logic/Game";
 import highlightMatrix from "./HighlightMatrix";
-import {GameVAI, ReviewMode} from "./Mode"
+import { GameVAI, ReviewMode } from "./Mode"
 import "./main.scss";
 
 
 /*
 TODOS:
 -Game mode
+  -Caturing and promoting pieces is currently broken in game mode
   -Promote option is currently not passed to the engine
+  -Need to adjust gameboard logic to apply to player and opponent
+   logic rather than binding board orientation to black and white
 -History control
 */
 
@@ -53,9 +56,6 @@ function App() {
     }
     mode.promoOptionActive = false;
     mode.isPlayersTurn = false;
-    // if (mode.gameInProgress) {
-    //   mode.isPlayersTurn = false;
-    // }
   };
 
   const drop_piece = action => {  
@@ -80,10 +80,12 @@ function App() {
   };
 
   useEffect(() => {
-    if (mode && mode.gameInProgress && !mode.isPlayersTurn) {
+    // Executed when it's not the player's turn and opponent is the AI
+    if (mode && mode instanceof GameVAI && mode.gameInProgress && 
+    !mode.isPlayersTurn) {
       const choices = board.getEngineActionChoices(false);
       const actionRefs = {move: move_piece, drop: drop_piece};
-      mode.take_turn(null, choices, actionRefs, board);
+      mode.take_turn(null, actionRefs, board);
     }
   }, [board, mode]);
 

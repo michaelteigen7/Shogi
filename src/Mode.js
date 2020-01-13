@@ -20,6 +20,7 @@ class ReviewMode extends Mode {
   constructor() {
     super();
     this.HistoryModeEnabled = true;
+    this.isPlayersTurn = true;
   }
 
   take_turn(action) {
@@ -54,16 +55,15 @@ class GameVAI extends GameMode {
     this.engine = new Engine(this.playerIsBlack);
   }
 
-  take_turn(action, possibleActions, actionRefs, board) {
-    if(this.isPlayersTurn && action) {
-      this.do_action(action);
-      if (!this.promoOptionActive) {
-        this.isPlayersTurn = false;
-      } else {
-      }
+  take_turn(action, actionRefs, board) {
+    if(this.isPlayersTurn) {
+      // Player's move
+      if (action) this.do_action(action);
+      this.isPlayersTurn = this.promoOptionActive;
     } else {
+      // Engine's move
       if (!actionRefs) throw TypeError;
-      const engineChoice = this.engine.calculate(possibleActions, board);
+      const engineChoice = this.engine.calculate(board);
       if (engineChoice.drop) {
         this.do_action(() => actionRefs.drop(engineChoice));
       } else {
