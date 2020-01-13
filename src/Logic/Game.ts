@@ -159,67 +159,9 @@ class Board implements GameBoard {
     }
   }
   
-  getBlackPieces(black = false) {
-    const retArr = []
-    this.board.forEach(row => {
-      row.forEach(cell => {
-        if(cell !== emptySquare && cell.isBlack === black) {
-          retArr.push(cell);
-        }
-      })
-    })    
-    return retArr;
-  }
-
-  getBlackDrops(black = false) {
-    const color = black ? 'black' : 'white';
-    const pieceStand = this.pieceStands[color];
-    const dropActions = [];
-    for (let pieceType in pieceStand) {
-      for (let piece of pieceStand[pieceType]) {
-        try {
-          dropActions.concat(piece.getPossibleActions(this.board));
-        }
-        catch {
-          console.log("Error in getting piece drops:");
-          console.log(piece);
-          console.log("pieceStand");
-          console.log(pieceStand);
-          console.log("Piece type array:");
-          console.log(pieceStand[pieceType]);
-          throw TypeError;
-        }
-      }
-    }
-    return dropActions
-  }
-
-  // Supply the engine with a list of possible actions
-  getEngineActionChoices(engineIsBlack : boolean) {
-    const enginePieces = this.getBlackPieces(engineIsBlack);
-
-    const possibleMoves = [];
-    enginePieces.forEach(piece => {
-      try {
-        piece.getPossibleActions(this.board).forEach(action => {
-          possibleMoves.push(action);
-        })
-      }
-      catch (e) {
-        console.log("Error in getting piece actions:");
-        console.log(piece);
-        console.log(e);
-        throw TypeError;
-      }
-    })
-
-    return possibleMoves.concat(this.getBlackDrops(this.board));
-  }
-
   // ACTIONS
   // Each action should deepcopy the baord, mutate that copy
   // and return new board
-
   move_piece(action : ActionDef) {
     // Get references
     const iCurrent = action.currPos[0];

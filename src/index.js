@@ -83,7 +83,6 @@ function App() {
     // Executed when it's not the player's turn and opponent is the AI
     if (mode && mode instanceof GameVAI && mode.gameInProgress && 
     !mode.isPlayersTurn) {
-      const choices = board.getEngineActionChoices(false);
       const actionRefs = {move: move_piece, drop: drop_piece};
       mode.take_turn(null, actionRefs, board);
     }
