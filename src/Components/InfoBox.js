@@ -16,12 +16,24 @@ export default function InfoBox(props) {
     ) : null;
   };
 
+  const next = () => {
+    const newBoard = props.history.next();
+  }
+
   const historyNavigator = () => {
+    const setBoardFromHistory = board => {
+      if (board) props.setBoard(board);
+    }
+
     return props.color === "white" ? 
       (
         <div id="move-navigator">
-          <button>Previous</button>
-          <button>Next</button>
+          <button
+            onClick={ () => setBoardFromHistory(props.history.previous()) }
+          >Previous</button>
+          <button
+            onClick={ () => setBoardFromHistory(props.history.next()) }
+          >Next</button>
         </div>
       ) 
       : null;

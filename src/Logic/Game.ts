@@ -19,7 +19,7 @@ const emptyPieceStands = () => ({
   white: pieceStandList()
 });
 
-function decodeBoard(engineBoard : number[], enginePieceStands: object) {
+export function decodeBoard(engineBoard : number[], enginePieceStands: object) {
   const gameBoard = [];
   const pieceStands = emptyPieceStands();
 
@@ -104,7 +104,7 @@ const startBoard = decodeBoard([
 
 export { emptySquare, startBoard };
 
-class Board implements GameBoard {
+export default class Board implements GameBoard {
   constructor(board : Array<Array<object>>, pieceStands = emptyPieceStands()) {
     // this.board is the 9x9 grid. Order of the pieces is crucial
     this.board = board;
@@ -227,4 +227,22 @@ class Board implements GameBoard {
   };
 }
 
-export default Board;
+function unhashBoard(hashedBoard : string) {
+  // First 81 triplets are board pieces
+  const boardStr = hashedBoard.substring(0, 243).split("");
+
+  const board = [];
+  let k = 0;
+  for (let i = 0; i < 81; i++) {
+    let pieceStr : string = ""
+    for (let j = 0; j < 3; i++) {
+      pieceStr = boardStr[k];
+    }
+    const pieceCode = parseInt(pieceStr, 16);
+    board.push(pieceCode);
+  }
+
+  // The rest are on piece stands
+  const pieceStands = JSON.parse(hashedBoard.substring(243));
+  return new Board([...decodeBoard(board, pieceStands)])
+}

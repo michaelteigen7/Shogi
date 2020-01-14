@@ -185,7 +185,6 @@ export default function encodeBoard(board : object, engineIsBlack : boolean) {
         const pieceIsBlack = piece.isBlack;
         const pieceColor = pieceIsBlack ? 'black' : 'white';
         pieceCode = pieceIsBlack ? pieceCode : pieceCode + whitePieceCode;
-        pieceCode = piece.isPromoted ? pieceCode + promotedPieceCode : pieceCode;
         
         pieceStands[pieceColor].push(pieceCode);
       }

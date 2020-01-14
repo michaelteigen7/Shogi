@@ -1,24 +1,28 @@
 import Engine from "./GameEngine/Engine";
+import HistoryTree from "./Logic/HistoryTree";
 
 class Mode {
-  constructor() {
+  constructor(board) {
     this.gameInProgress = false;
     this.isPlayersTurn = true;
     this.promoOptionActive = false;
     this.HistoryModeEnabled = false;
     this.gameInProgress = false;
-    this.history = {};
+    this.history = new HistoryTree(board);
   }
 
   // Need to get this to write to history
   do_action(action) {
-    action();
+    const newBoard = action();
+    if (newBoard) {
+      this.history.record_board(newBoard);
+    }
   }
 }
 
 class ReviewMode extends Mode {
-  constructor() {
-    super();
+  constructor(board) {
+    super(board);
     this.HistoryModeEnabled = true;
     this.isPlayersTurn = true;
   }
@@ -29,8 +33,8 @@ class ReviewMode extends Mode {
 }
 
 class GameMode extends Mode {
-  constructor(playerPlaysBlack) {
-    super();
+  constructor(playerPlaysBlack, board) {
+    super(board);
     this.playerIsBlack = playerPlaysBlack;
   }
 
@@ -40,7 +44,6 @@ class GameMode extends Mode {
     if (!this.playerIsBlack) {
       this.isPlayersTurn = false;
     }
-    console.log(`Player's turn: ${this.isPlayersTurn}`);
   }
 
   // Need to implement endgame logic later
@@ -50,8 +53,8 @@ class GameMode extends Mode {
 }
 
 class GameVAI extends GameMode {
-  constructor(playerIsBlack) {
-    super(playerIsBlack);
+  constructor(playerIsBlack, board) {
+    super(playerIsBlack, board);
     this.engine = new Engine(this.playerIsBlack);
   }
 

@@ -5,8 +5,8 @@ import {ActionDef} from "../Definitions";
 export default class Engine {
   constructor(playerIsBlack : boolean) {
     console.log('Constructing engine');
-    this.color = !playerIsBlack
-    console.log(`Engine is black: ${this.color}`);
+    this.engineIsBlack = !playerIsBlack
+    console.log(`Engine is black: ${this.engineIsBlack}`);
     // Useless now as a single-threaded application
     // Need to implement web workers later
     this.isThinking = false;
@@ -25,7 +25,7 @@ export default class Engine {
   }
 
   calculate(board) {
-    const engineBoard = encodeBoard(board, this.color);
+    const engineBoard = encodeBoard(board, this.engineIsBlack);
 
     console.log("Possible moves for white:");
     const choices = engineBoard.possibleActions(false);
@@ -38,8 +38,8 @@ export default class Engine {
       engineBoard.drop_piece(engineMove);
     }
 
-    console.log("Commited action to board");
     engineBoard.print();
+    console.log(`Engine score: ${engineBoard.getScore(this.engineIsBlack)}`);
 
     return engineMove
   }

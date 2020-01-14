@@ -9,23 +9,32 @@ class PieceValues {
       0x5: 9, // Gold
       0x6: 13, // Bishop
       0x7: 15, // Rook
-      0x8: 0, // King
-      0x11: 12,
-      0x12: 10,
-      0x13: 10,
-      0x14: 9,
+      0x8: 0xfffffff, // King is one nibble less than max safe int
+      0x11: 12, // Promoted pawn
+      0x12: 10, // promoted lance
+      0x13: 10, // promoted knight
+      0x14: 9, // promoted silver
+      0x16: 15, // horse
+      0x17: 17 // dragon
+    }
+
+    // It's better if the rook and bishop are mobile, so moves that make them
+    // mobile will be rewarded
+    this.rangedExtras = {
+      0x6: 13,
+      0x7: 15,
       0x16: 15,
       0x17: 17
-    }
-    
-    // Rook and bishop have more value if they are mobile.
+    } 
     this.movementMultiplier = .01
   }
 
   getPieceValue = (pieceType : number[], isPromoted : boolean) => {
-    return isPromoted ?
+    let pieceValue = isPromoted ?
       this.promotedPieceValues[pieceType] :
-      this.pieceValues[pieceType]
+      this.pieceValues[pieceType];
+    return (pieceType in this.rangedExtras) ? (pieceValue * 
+      (1 + this.movementMultiplier)) : pieceValue;
   }
 }
 

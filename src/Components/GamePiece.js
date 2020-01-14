@@ -1,7 +1,7 @@
 import React from "react";
 import "./Components.scss";
 import { emptySquare } from "../Logic/Game";
-import highlightMatrix from "../HighlightMatrix.js";
+import highlightMatrix from "./HighlightMatrix";
 import Action from "../Logic/Action";
 
 export default function GamePiece(props) {

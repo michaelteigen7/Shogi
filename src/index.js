@@ -3,26 +3,25 @@ import ReactDOM from "react-dom";
 import GameBoard from "./Components/GameBoard";
 import SidePanel from "./Components/SidePanel";
 import Board, { startBoard } from "./Logic/Game";
-import highlightMatrix from "./HighlightMatrix";
+import highlightMatrix from "./Components/HighlightMatrix";
 import { GameVAI, ReviewMode } from "./Mode"
 import "./main.scss";
 
 
 /*
 TODOS:
--Game mode
-  -Caturing and promoting pieces is currently broken in game mode
-  -Promote option is currently not passed to the engine
-  -Need to adjust gameboard logic to apply to player and opponent
-   logic rather than binding board orientation to black and white
--History control
+-Engine
+-Need to adjust gameboard logic to apply to player and opponent
+  logic rather than binding board orientation to black and white
 */
 
 function App() {
+  const localStartBoard = new Board(startBoard);
+  
   // State
-  const [board, setBoard] = useState(new Board(startBoard));
+  const [board, setBoard] = useState(localStartBoard);
   // Mode is a game-flow-control object
-  const [mode, setMode] = useState(new ReviewMode());
+  const [mode, setMode] = useState(new ReviewMode(localStartBoard));
   // Selected is a Piece sub-class instance: it is a direct reference
   // to the selected piece
   const [selected, select] = useState(null);
@@ -30,40 +29,46 @@ function App() {
   const [highlighted, setHighlighted] = useState(highlightMatrix);
   // possibleMoves is an array of actions
   const [possibleMoves, setPossibleMoves] = useState([]);
-  // Last move is a temporary variable until history control
-  // is properly implemented. It's only present use is
-  // in piece promotion
   const [lastMove, setLastMove] = useState(null);
   const [promotionOption, togglePromotionOption] = useState(false);
 
   const move_piece = action => {
     select(null); // Clear the selection
     setLastMove(action); // record the last action for a promotion option
-    setBoard(board.move_piece(action)); // update the rendered board
+    const newBoard = board.move_piece(action);
+    setBoard(newBoard); // update the rendered board
     // set the promotion option
     if (action.promote) {
       mode.promoOptionActive = true;
       togglePromotionOption(true);
-    }
+      return null;
+    } else return newBoard;
   };
 
   const promote_piece = acceptPromote => {
+    let newBoard;
     if (acceptPromote) {
-      setBoard(board.promote_piece(lastMove));
+      newBoard = board.promote_piece(lastMove);
+      setBoard(newBoard);
     }
     else {
-      setBoard(board.copy());
+      newBoard = board.copy();
+      setBoard(newBoard);
     }
     mode.promoOptionActive = false;
     mode.isPlayersTurn = false;
+    return newBoard;
   };
 
   const drop_piece = action => {  
-    setBoard(board.drop_piece(action));
+    const newBoard = board.drop_piece(action);
+    setBoard(newBoard);
+    return newBoard;
   };
 
   // Object holds functions without return values
   const actions = {
+    do_action: action => mode.take_turn(action),
     movePiece: move_piece,
     promotePiece: promote_piece,
     dropPiece: drop_piece,
@@ -71,12 +76,12 @@ function App() {
     create_game: () => {
       // Player will go first by default
       const playerIsBlack = true;
-      const newMode = new GameVAI(playerIsBlack);
-      setBoard(new Board(startBoard));
+      const newBoard = new Board(startBoard);
+      const newMode = new GameVAI(playerIsBlack, newBoard);
+      setBoard(newBoard);
       newMode.start_game();
       setMode(newMode);
     },
-    do_action: action => mode.take_turn(action)
   };
 
   useEffect(() => {
@@ -86,7 +91,7 @@ function App() {
       const actionRefs = {move: move_piece, drop: drop_piece};
       mode.take_turn(null, actionRefs, board);
     }
-  }, [board, mode]);
+  });
 
   // Object holds references to states and state updaters
   const state = {

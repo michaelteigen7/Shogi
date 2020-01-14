@@ -13,6 +13,8 @@ export default function SidePanel(props) {
         selectPiece={props.state.selected.set}
         selectedPiece={props.state.selected.value}
         color={props.color}
+        history={props.state.mode.value.history}
+        setBoard={props.state.board.set}
       />
       <div className="timer"></div>
       <PieceStand
