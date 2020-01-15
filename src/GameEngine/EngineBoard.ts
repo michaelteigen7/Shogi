@@ -43,23 +43,36 @@ class EngineBoard {
   }
 
   getCoordinates(index) : [number, number] {
-    return [parseInt(index / 9, 10), index % 9]
+    return [parseInt(index / 9, 10), index % 9];
   }
 
   // Iterate over the board and sum piece values
   getScore(engineIsBlack : boolean) : number {
     let engineScore = 0;
+
+    const addPieceScore = (piece, pieceIsBlack) => {
+      const pieceValue : number = PieceValues.getPieceValue(piece);
+      // Change the score by the piece value and ownership
+      engineScore = engineIsBlack === this.pieceIsBlack(piece) ?
+        engineScore + pieceValue :
+        engineScore - pieceValue;
+    }
+
+    // board
     for (let piece of this.board) {
-        if (piece === 0) continue;
-        const pieceIsBlack : boolean = this.pieceIsBlack(piece);
-        // Map the piece to a value
-        piece &= 0xff;
-        const pieceValue : number = PieceValues.getPieceValue(piece);
-        // Change the score by the piece value and ownership
-        engineScore = engineIsBlack === pieceIsBlack ?
-          engineScore + pieceValue :
-          engineScore - pieceValue;
-      }
+      if (piece === 0) continue;
+      // Map the piece to a value
+      addPieceScore(piece, this.pieceIsBlack(piece));
+    }
+
+    // piece stands
+    for (let piece of this.pieceStands['black']) {
+      addPieceScore(piece, false);
+    }
+    for (let piece of this.pieceStands['white']) {
+      addPieceScore(piece + 0x100, true);
+    }
+
     return engineScore;
   }
 
@@ -83,16 +96,17 @@ class EngineBoard {
   }
 
   move_piece(action : ActionDef) : void {
+    const newBoard = this.copy();
     const currPos = action.currPos;
-    let pieceCode : number = this.getPiece(currPos);
+    let pieceCode : number = newBoard.getPiece(currPos);
 
     // Handle piece capture
     if (action.capture) {
-      const capturedPiece : number = this.getPiece(action.movePos);
+      const capturedPiece : number = newBoard.getPiece(action.movePos);
       // Set the piece on the opposite player's piece stand
-      const newPieceColor = this.pieceIsBlack(capturedPiece) ?
+      const newPieceColor = newBoard.pieceIsBlack(capturedPiece) ?
         'white' : 'black';
-      this.pieceStands[newPieceColor].push(this.getPieceType(capturedPiece));
+      newBoard.pieceStands[newPieceColor].push(newBoard.getPieceType(capturedPiece));
     }
 
     // Handle promotion option
@@ -101,15 +115,18 @@ class EngineBoard {
     }
 
     // Clear the space
-    this.set_piece(currPos, 0);
+    newBoard.set_piece(currPos, 0);
 
     // Move the moving piece
-    this.set_piece(action.movePos, pieceCode);
+    newBoard.set_piece(action.movePos, pieceCode);
+
+    return newBoard;
   }
 
   drop_piece(action : ActionDef) : void {
+    const newBoard = this.copy();
     // Action may come from player or from the engine
-    // player piece types will eb string encoded, 
+    // player piece types will be string encoded, 
     // while those from the engine will be integers
     let pieceType : number; 
     if (typeof action.pieceType === 'string') {
@@ -122,7 +139,7 @@ class EngineBoard {
     const pieceCode : number = action.pieceColor === 'black' ? 
       pieceType : pieceType + 0x100;
     // Drop the piece
-    this.set_piece(action.movePos, pieceCode);
+    newBoard.set_piece(action.movePos, pieceCode);
 
     const remove = (array, element) => {
       const index = array.indexOf(element);
@@ -130,7 +147,9 @@ class EngineBoard {
       array.splice(index, 1);
     }
     // Remove the piece from the piecestand
-    remove(this.pieceStands[action.pieceColor], pieceType);
+    remove(newBoard.pieceStands[action.pieceColor], pieceType);
+
+    return newBoard;
   }
 
   print() : void {
@@ -141,6 +160,10 @@ class EngineBoard {
       }
       console.log(rank);
     }
+  }
+
+  copy() {
+    return new EngineBoard(this.board, Object.assign({}, this.pieceStands));
   }
 }
 

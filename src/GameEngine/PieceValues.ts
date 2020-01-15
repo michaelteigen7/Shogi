@@ -29,10 +29,9 @@ class PieceValues {
     this.movementMultiplier = .01
   }
 
-  getPieceValue = (pieceType : number[], isPromoted : boolean) => {
-    let pieceValue = isPromoted ?
-      this.promotedPieceValues[pieceType] :
-      this.pieceValues[pieceType];
+  getPieceValue = (pieceCode : number[]) => {
+    let pieceValue = this.pieceValues[pieceCode & 0xff];
+    const pieceType = pieceCode & 0x00f;
     return (pieceType in this.rangedExtras) ? (pieceValue * 
       (1 + this.movementMultiplier)) : pieceValue;
   }

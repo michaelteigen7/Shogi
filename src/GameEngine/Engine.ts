@@ -14,33 +14,26 @@ export default class Engine {
 
   calculateRandom(choices : ActionDef[]) {
     const choice =  choices[Math.floor(Math.random() * (choices.length - 1))];
-    console.log("Got engine choice:");
-    console.log(choice);
-    console.log("Checking for promotion option");
     if (choice.promote) {
       if (Math.random() < 0.5) choice.promote = false;
-      else console.log("Choosing to promote");
     }
     return choice;
   }
 
   calculate(board) {
-    const engineBoard = encodeBoard(board, this.engineIsBlack);
+    let engineBoard = encodeBoard(board, this.engineIsBlack);
 
     console.log("Possible moves for white:");
     const choices = engineBoard.possibleActions(false);
 
     const engineMove = this.calculateRandom(choices);
 
-    if (!engineMove.drop) {
+    engineBoard = engineMove.drop ? engineBoard.drop_piece(engineMove) :
       engineBoard.move_piece(engineMove);
-    } else {
-      engineBoard.drop_piece(engineMove);
-    }
 
     engineBoard.print();
     console.log(`Engine score: ${engineBoard.getScore(this.engineIsBlack)}`);
 
-    return engineMove
+    return engineMove;
   }
 }
