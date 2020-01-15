@@ -14,11 +14,12 @@ class Piece implements PieceDef {
       this.possibleMoveIndices = [];
   }
 
-  copy() {
+  copy(preserveType : boolean) {
     const newPiece = new this.constructor(this.isBlack);
     newPiece.position = [this.position[0], this.position[1]];
     newPiece.isPromoted = this.isPromoted;
     newPiece.isRanged = this.isRanged;
+    if (preserveType) newPiece.pieceType = newPiece.getPieceType();
 
     // This array value need not be deep-copied as it is final
     newPiece.possibleMoveIndices = this.possibleMoveIndices;
@@ -148,6 +149,8 @@ class Gold extends Piece {
   constructor(isBlack : boolean) {
     super("金", "", isBlack);
     this.possibleMoveIndices = goldIndices;
+    delete this.isPromoted;
+    delete this.promotedPossibleMoves;
   }
 
   toString() {

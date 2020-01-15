@@ -126,7 +126,6 @@ function App() {
       <SidePanel
         id="left-panel"
         pieceStand={board.pieceStands.white}
-        selected={selected}
         state={state}
         actions={actions}
         color={"white"}
@@ -140,10 +139,8 @@ function App() {
       <SidePanel
         id="right-panel"
         pieceStand={board.pieceStands.black}
-        selected={selected}
         state={state}
         actions={actions}
-        promotionOption={promotionOption}
         color={"black"}
       />
     </div>

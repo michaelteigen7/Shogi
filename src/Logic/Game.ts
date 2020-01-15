@@ -3,6 +3,16 @@ import { Bishop, Rook, Lance } from "./RangedPieces";
 import {ActionDef, GameBoard} from "../Definitions";
 
 const emptySquare = " ";
+const constructorsFromString = {
+  'Pawn' : Pawn,
+  'Lance' : Lance,
+  'Knight' : Knight,
+  'Silver' : Silver,
+  'Gold' : Gold,
+  'Bishop' : Bishop,
+  'Rook' : Rook,
+  'King' : King
+}
 
 const pieceStandList = () => ({
   Pawn: [],
@@ -33,17 +43,6 @@ export function decodeBoard(engineBoard : number[], enginePieceStands: object) {
       0x7 : Rook,
       0x8 : King
     };
-  
-  const constructorsFromString = {
-    'Pawn' : Pawn,
-    'Lance' : Lance,
-    'Knight' : Knight,
-    'Silver' : Silver,
-    'Gold' : Gold,
-    'Bishop' : Bishop,
-    'Rook' : Rook,
-    'King' : King
-  }
 
   const createPiece = (isBlack : boolean, isPromoted : boolean, 
     type : number | string) => {
@@ -102,8 +101,6 @@ const startBoard = decodeBoard([
     0x2, 0x3, 0x4, 0x5, 0x8, 0x5, 0x4, 0x3, 0x2
   ])[0];
 
-export { emptySquare, startBoard };
-
 export default class Board implements GameBoard {
   constructor(board : Array<Array<object>>, pieceStands = emptyPieceStands()) {
     // this.board is the 9x9 grid. Order of the pieces is crucial
@@ -130,13 +127,13 @@ export default class Board implements GameBoard {
   }
 
   // Get a completely new, identical baord object with new pieces
-  copy() {
+  copy(preservePieceTypes : boolean = false) {
     // copy board proper
     const newBoard = this.board.map(row => {
       return row.map(cell => {
         return (
           cell === emptySquare ? 
-          emptySquare : cell.copy()
+          emptySquare : cell.copy(preservePieceTypes)
         );
       })
     });
@@ -146,11 +143,15 @@ export default class Board implements GameBoard {
     for (let color in this.pieceStands) {
       for (let pieceType in this.pieceStands[color]) {
         stands[color][pieceType] = 
-          this.pieceStands[color][pieceType].map(piece => piece.copy());
+          this.pieceStands[color][pieceType].map(piece => piece.copy(preservePieceTypes));
       }
     }
     const newBoardObj = new Board(newBoard, stands);
     return newBoardObj;
+  }
+
+  stringify() {
+    
   }
 
   print() {
@@ -234,7 +235,7 @@ function unhashBoard(hashedBoard : string) {
   const board = [];
   let k = 0;
   for (let i = 0; i < 81; i++) {
-    let pieceStr : string = ""
+    let pieceStr : string = "";
     for (let j = 0; j < 3; i++) {
       pieceStr = boardStr[k];
     }
@@ -246,3 +247,30 @@ function unhashBoard(hashedBoard : string) {
   const pieceStands = JSON.parse(hashedBoard.substring(243));
   return new Board([...decodeBoard(board, pieceStands)])
 }
+
+function parseJSON(JSONboard) {
+  const parsePiece = piece => {
+    const constructor = constructorsFromString[piece.pieceType];
+    const newPiece = new constructor(piece.isBlack, piece.isPromoted);
+    Object.assign(newPiece, piece);
+    return newPiece;
+  }
+
+  for (let row in JSONboard.board) {
+    for (let piece in JSONboard.board[row]) {
+      if (JSONboard.board[row][piece] !== emptySquare) {
+        JSONboard.board[row][piece] = parsePiece(JSONboard.board[row][piece]);
+      }
+    }
+  }
+
+  for (let color in JSONboard.pieceStands) {
+    for (let pieceType in JSONboard.pieceStands[color]) {
+      for (let piece of JSONboard.pieceStands[color][pieceType]) {
+        piece = parsePiece(piece);
+      }
+    }
+  }
+}
+
+export { emptySquare, startBoard, unhashBoard, parseJSON };
