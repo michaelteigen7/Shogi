@@ -61,28 +61,28 @@ class Bishop extends Piece {
     // up right
     i = this.position[0] - 1;
     j = this.position[1] + 1;
-    loop((i, j) => i >= 0 && j <= 8, () => {
+    loop(() => i >= 0 && j <= 8, () => {
       i--; j++;
     });
 
     // up left
     i = this.position[0] - 1;
     j = this.position[1] - 1;
-    loop((i, j) => i >=0 && j >= 0, () => {
+    loop(() => i >=0 && j >= 0, () => {
       i--; j--;
     });
 
     // down left
     i = this.position[0] + 1;
     j = this.position[1] - 1;
-    loop((i, j) => i <= 8 && j >= 0, () => {
+    loop(() => i <= 8 && j >= 0, () => {
       i++; j--;
     });
 
     // down right
     i = this.position[0] + 1;
     j = this.position[1] + 1;
-    loop((i, j) => i <= 8 && j <= 8, () => {
+    loop(() => i <= 8 && j <= 8, () => {
       i++; j++;
     });
 
@@ -104,51 +104,53 @@ class Rook extends Piece {
   }
 
     possibleMoves(board) {
-    const moves = [];
-    let i, j;
-    const loop = (breakCondition, iterator) => {
-      while (breakCondition()) {
-        moves.push([i, j]);
-        try {
-          if (!(board[i][j] === emptySquare)) break;
+      const moves = [];
+      let i, j;
+      const loop = (breakCondition, iterator) => {
+        while (breakCondition()) {
+          moves.push([i, j]);
+          try {
+            if (!(board[i][j] === emptySquare)) {
+              break;
+            }
+          }
+          catch (e) {
+            if (!(board.baord[i][j] === emptySquare)) break;
+          }
+          iterator();
         }
-        catch (e) {
-          if (!(board.baord[i][j] === emptySquare)) break;
-        }
-        iterator();
       }
+
+      // up
+      i = this.position[0] - 1;
+      j = this.position[1];
+      loop(() => i > -1, () => {
+        i--;
+      });
+
+      // down
+      i = this.position[0] + 1;
+      j = this.position[1];
+      loop(() => i < 9, () => {
+        i++;
+      });
+
+      // left
+      i = this.position[0];
+      j = this.position[1] - 1;
+      loop(() => j > -1, () => {
+        j--;
+      });
+
+      // right
+      i = this.position[0];
+      j = this.position[1] + 1;
+      loop(() => j < 9, () => {
+        j--;
+      });
+
+      return moves;
     }
-
-    // up
-    i = this.position[0] - 1;
-    j = this.position[1];
-    loop(i => i > -1, () => {
-      i--;
-    });
-
-    // down
-    i = this.position[0] + 1;
-    j = this.position[1];
-    loop(i => i < 9, () => {
-      i++;
-    });
-
-    // left
-    i = this.position[0];
-    j = this.position[1] - 1;
-    loop(j => j > -1, () => {
-      j--;
-    });
-
-    // right
-    i = this.position[0];
-    j = this.position[1] + 1;
-    loop(j => j < 9, () => {
-      j--;
-    });
-  
-    return moves;
-  }
 
   promotedPossibleMoves(board : Array<Array<object>>) {
     return (

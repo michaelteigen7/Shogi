@@ -58,9 +58,13 @@ export default function GamePiece(props) {
 
   const isPossibleMove = move => {
     for (let action of props.state.possibleMoves.value) {
+      // Check whether the clicked cell is in the possible moves list
+      // of the selected piece
       const i = action.movePos[0];
       const j = action.movePos[1];
-      if (move[0] === i && move[1] === j) return action;
+      if (move[0] === i && move[1] === j) {
+        return action;
+      };
     }
     return false;
   };

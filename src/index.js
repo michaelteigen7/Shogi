@@ -7,10 +7,12 @@ import highlightMatrix from "./Components/HighlightMatrix";
 import { GameVAI, ReviewMode } from "./Mode"
 import "./main.scss";
 
-
 /*
 TODOS:
 -Engine
+-Promote option is not passed to the engine
+-Loading a board breaks the app
+-Player is currently allowed to move opponenets pieces in versus mode
 -Need to adjust gameboard logic to apply to player and opponent
   logic rather than binding board orientation to black and white
 */
@@ -66,6 +68,15 @@ function App() {
     return newBoard;
   };
 
+  useEffect(() => {
+    // Executed when it's not the player's turn and opponent is the AI
+    if (mode && mode instanceof GameVAI && mode.gameInProgress && 
+    !mode.isPlayersTurn) {
+      const actionRefs = {move: move_piece, drop: drop_piece};
+      mode.take_turn(null, actionRefs, board);
+    }
+  });
+
   // Object holds functions without return values
   const actions = {
     do_action: action => mode.take_turn(action),
@@ -83,15 +94,6 @@ function App() {
       setMode(newMode);
     },
   };
-
-  useEffect(() => {
-    // Executed when it's not the player's turn and opponent is the AI
-    if (mode && mode instanceof GameVAI && mode.gameInProgress && 
-    !mode.isPlayersTurn) {
-      const actionRefs = {move: move_piece, drop: drop_piece};
-      mode.take_turn(null, actionRefs, board);
-    }
-  });
 
   // Object holds references to states and state updaters
   const state = {

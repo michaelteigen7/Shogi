@@ -23,16 +23,36 @@ export default class Engine {
   calculate(board) {
     let engineBoard = encodeBoard(board, this.engineIsBlack);
 
-    console.log("Possible moves for white:");
     const choices = engineBoard.possibleActions(false);
 
-    const engineMove = this.calculateRandom(choices);
+    const getLocalMaxiumum = actions => {
+      // max of object
+      const getMaxScore = localActions => {
+        let maxScore = parseFloat(Object.keys(localActions)[0]);
+        for (let scoreKey in localActions) {
+          const score = parseFloat(scoreKey);
+          if (parseFloat(score) > maxScore) maxScore = score;
+        }
+        return maxScore;
+      }
+
+      const localActions = {};
+      for (let action of actions) {
+        let localBoard = engineBoard.copy();
+        localBoard = action.drop ? localBoard.drop_piece(action) :
+          localBoard.move_piece(action);
+        const score = localBoard.getScore(this.engineIsBlack);
+        localActions[score] = [action, localBoard];      
+      }
+      const maxScore = getMaxScore(localActions);
+      const bestAction = localActions[maxScore.toString()][0];
+      return bestAction;
+    }
+
+    const engineMove = getLocalMaxiumum(choices);
 
     engineBoard = engineMove.drop ? engineBoard.drop_piece(engineMove) :
       engineBoard.move_piece(engineMove);
-
-    engineBoard.print();
-    console.log(`Engine score: ${engineBoard.getScore(this.engineIsBlack)}`);
 
     return engineMove;
   }

@@ -7,8 +7,13 @@ export interface ActionDef {
   pieceColor : string | null
 };
 
-export interface GameBoard {
+export interface GameBoardDef {
   board : Array<Array<object>>,
+  pieceStands : object
+}
+
+export interface EngineBoardDef {
+  board : number[],
   pieceStands : object
 }
 

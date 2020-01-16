@@ -1,3 +1,5 @@
+import React from "react";
+
 export default function PromotionOptionBox(props) {
   const destroy_view = () => {
     props.setpromotionOption(false);

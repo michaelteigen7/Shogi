@@ -90,8 +90,6 @@ class EngineBoard {
       }
     }
 
-    console.log("Got white moves: ");
-    console.log(actions);
     return actions.concat(getDrops(this, isBlacksTurn));
   }
 
@@ -163,7 +161,13 @@ class EngineBoard {
   }
 
   copy() {
-    return new EngineBoard(this.board, Object.assign({}, this.pieceStands));
+    return new EngineBoard(
+      [...this.board], 
+      {
+        black: [...this.pieceStands.black], 
+        white: [...this.pieceStands.white]
+      }
+    );
   }
 }
 

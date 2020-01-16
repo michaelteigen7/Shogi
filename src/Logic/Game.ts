@@ -1,6 +1,6 @@
 import { Pawn, Knight, Silver, Gold, King } from "./Pieces";
 import { Bishop, Rook, Lance } from "./RangedPieces";
-import {ActionDef, GameBoard} from "../Definitions";
+import {ActionDef, GameBoardDef} from "../Definitions";
 
 const emptySquare = " ";
 const constructorsFromString = {
@@ -101,7 +101,7 @@ const startBoard = decodeBoard([
     0x2, 0x3, 0x4, 0x5, 0x8, 0x5, 0x4, 0x3, 0x2
   ])[0];
 
-export default class Board implements GameBoard {
+export default class Board implements GameBoardDef {
   constructor(board : Array<Array<object>>, pieceStands = emptyPieceStands()) {
     // this.board is the 9x9 grid. Order of the pieces is crucial
     this.board = board;
