@@ -150,10 +150,6 @@ export default class Board implements GameBoardDef {
     return newBoardObj;
   }
 
-  stringify() {
-    
-  }
-
   print() {
     for (let row of this.board) {
       console.log("| " + row.join(" | ") + " |");
@@ -266,8 +262,9 @@ function parseJSON(JSONboard) {
 
   for (let color in JSONboard.pieceStands) {
     for (let pieceType in JSONboard.pieceStands[color]) {
-      for (let piece of JSONboard.pieceStands[color][pieceType]) {
-        piece = parsePiece(piece);
+      for (let piece in JSONboard.pieceStands[color][pieceType]) {
+        JSONboard.pieceStands[color][pieceType][piece] = 
+          parsePiece(JSONboard.pieceStands[color][pieceType][piece]);
       }
     }
   }

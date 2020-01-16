@@ -11,7 +11,6 @@ import "./main.scss";
 TODOS:
 -Engine
 -Promote option is not passed to the engine
--Loading a board breaks the app
 -Player is currently allowed to move opponenets pieces in versus mode
 -Need to adjust gameboard logic to apply to player and opponent
   logic rather than binding board orientation to black and white
