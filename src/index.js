@@ -32,6 +32,8 @@ function App() {
   const [possibleMoves, setPossibleMoves] = useState([]);
   const [lastMove, setLastMove] = useState(null);
   const [promotionOption, togglePromotionOption] = useState(false);
+  // By default, player will play black for now
+  const [playerMovesBlack, setBlackPlayer] = useState(true);
 
   const move_piece = action => {
     select(null); // Clear the selection
@@ -94,10 +96,8 @@ function App() {
     dropPiece: drop_piece,
     clearHighlights: () => setHighlighted(highlightMatrix),
     create_game: () => {
-      // Player will go first by default
-      const playerIsBlack = true;
       const newBoard = new Board(startBoard);
-      const newMode = new GameVAI(playerIsBlack, newBoard);
+      const newMode = new GameVAI(playerMovesBlack, newBoard);
       setBoard(newBoard);
       newMode.start_game();
       setMode(newMode);
@@ -129,6 +129,10 @@ function App() {
     mode: {
       value: mode,
       set: setMode
+    },
+    playerMovesBlack: {
+      value: playerMovesBlack,
+      set: setBlackPlayer
     }
   };
 

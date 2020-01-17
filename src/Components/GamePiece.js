@@ -53,6 +53,7 @@ export default function GamePiece(props) {
   };
 
   const isPieceSelected = () => props.state.selected.value !== null;
+
   const isPieceDroppable = () =>
     props.state.selected.value.position[0] === null;
 
@@ -99,20 +100,47 @@ export default function GamePiece(props) {
   }
 
   const click_logic = () => {
-    if (!isPieceSelected() && props.piece !== emptySquare) {
-      // If a piece isn't selected, and if the clicked square isn't
-      // empty select the piece at that square
+    const playerCanMoveOpponentPiece = () => {
+      const mode = props.state.mode.value;
+      return !mode || !mode.gameInProgress
+    }
+    const canSelectPiece = () => {
+    // return true if a friendly piece isn't selected and if the 
+    // clicked square isn't empty
+      const piece = props.piece;
+      return (
+        !isPieceSelected() &&
+        piece !== emptySquare &&
+        ( 
+          playerCanMoveOpponentPiece() ||
+          piece.isBlack === props.state.playerMovesBlack.value
+        )
+      );
+    }
+    const ignoreHostileClick = () => {
+      // return true if a game is in progress, and the player
+      // clicked on an opponent's piece
+      const piece = props.piece;
+      return (
+        !playerCanMoveOpponentPiece() &&
+        piece !== emptySquare &&
+        piece.isBlack !== props.state.playerMovesBlack.value
+      );
+    }
+
+    if (canSelectPiece()) {
       select(props.piece);
       highlight();
       return false;
     } 
     else if (props.piece === props.state.selected.value) {
-      // if a piece is selected and the clicked square is that same
-      // piece, then clear the highlighting and selected piece
-      if (props.piece === props.state.selected.value) {
-        clear_state();
-        return false;
-      }
+      // clear state if a friendly piece is selected and the clicked 
+      // square is that same piece
+      clear_state();
+      return false;
+    }
+    else if (ignoreHostileClick()) {
+      return false
     }
     else return true;
   };
