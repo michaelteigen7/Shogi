@@ -86,17 +86,19 @@ export default function GamePiece(props) {
     } else return false;
   };
 
-  const move_logic = () => {
+  const getMoveLogic = () => {
+    let logic = null;
     const dropAction = getPossibleDrop();
-      if (!dropAction) {
-        const action = isPossibleMove(props.boardPosition);
-        if (action) {
-          props.actions.movePiece(action);
-        }
-      } else {
-        props.actions.dropPiece(dropAction);
+    if (!dropAction) {
+      const action = isPossibleMove(props.boardPosition);
+      if (action) {
+        logic = () => props.actions.movePiece(action);
       }
-      clear_state();
+    } else {
+      logic = () => props.actions.dropPiece(dropAction);
+    }
+    clear_state();
+    return logic;
   }
 
   const click_logic = () => {
@@ -117,14 +119,21 @@ export default function GamePiece(props) {
         )
       );
     }
-    const ignoreHostileClick = () => {
-      // return true if a game is in progress, and the player
-      // clicked on an opponent's piece
+    const ignoreClick = () => {
       const piece = props.piece;
       return (
-        !playerCanMoveOpponentPiece() &&
-        piece !== emptySquare &&
-        piece.isBlack !== props.state.playerMovesBlack.value
+        // return true if no piece is selected
+          (piece === emptySquare && props.state.selected.value === null) ||
+        // return true if a friendly piece is selected and the 
+        // clicked square is that same piece
+          props.piece === props.state.selected.value ||
+        // return true if a game is in progress, and the player
+        // clicked on an opponent's piece 
+        (
+          !playerCanMoveOpponentPiece() &&
+          piece !== emptySquare &&
+          piece.isBlack !== props.state.playerMovesBlack.value
+        )
       );
     }
 
@@ -133,16 +142,13 @@ export default function GamePiece(props) {
       highlight();
       return false;
     } 
-    else if (props.piece === props.state.selected.value) {
-      // clear state if a friendly piece is selected and the clicked 
-      // square is that same piece
+    else if (ignoreClick()) {
       clear_state();
       return false;
     }
-    else if (ignoreHostileClick()) {
-      return false
+    else {
+      return true;
     }
-    else return true;
   };
 
   // When click, need to determine a logic tree
@@ -157,10 +163,9 @@ export default function GamePiece(props) {
   }
 
   const handle_click = e => {
-    if (!canClick()) {
-      return;
+    if (canClick() && click_logic()) {
+      props.actions.do_action(getMoveLogic());
     }
-    if (click_logic()) props.actions.do_action(move_logic);
   };
 
   return (

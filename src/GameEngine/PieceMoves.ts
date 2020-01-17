@@ -25,11 +25,7 @@ movePos : [number, number], pieceIsBlack : boolean) : boolean {
 // Get possible actions, given move coordinates
 function moveFilter(board : object, movePos: [number, number], 
 currPos : [number, number]) : ActionDef | boolean {
-  console.log("Entered moveFilter function")
-  console.log(`Checking position ${movePos} for a good move`)
   if (!inBounds(movePos)) return false;
-  console.log("Move is in bounds")
-
 
   const cappedPiece = board.getPiece(movePos);
   const piece = board.getPiece(currPos)
@@ -43,8 +39,6 @@ currPos : [number, number]) : ActionDef | boolean {
         actorIsPlayer: false
     });
   
-  console.log("Created an action for the move:")
-  console.log(action)
   if (!action.capture) return action;
   else {
     // Friendly fire check
@@ -54,22 +48,13 @@ currPos : [number, number]) : ActionDef | boolean {
 }
 
 const getMoves = (indices, position, board) => {
-  console.log("Entered getMoves function for non-ranged pieces")
-  console.log(`Got indices ${indices} for piece at ${position}`)
   const actions = [];
   // Array.filter doesn't allow for implicit truthiness check
   const pieceIsBlack = board.pieceIsBlack(board.getPiece(position));
-  console.log(`Piece is black?: ${pieceIsBlack}`)
-  console.log("Entering getOffsets loop")
   for (let moveCoord of getOffsets(position, indices, pieceIsBlack)) {
-    console.log(`Checking coordinate ${moveCoord}`)
     const action = moveFilter(board, moveCoord, position);
-    console.log("Got action")
-    console.log(action)
     if (action) actions.push(action);
   }
-  console.log("Got actions:")
-  console.log(actions)
   return actions;
 }
 
@@ -158,9 +143,7 @@ const moveFunctions = {
 
 export default function getPossibleMoves(pieceCode: number, 
 currPos : [number, number], board : object) : ActionDef[] {
-  console.log(`Getting possible moves for piece code ${pieceCode.toString(16)}`)
   // pop off color code to map to a function
   const code = pieceCode & 0xff;
-  console.log(`code key: ${code}`)
   return moveFunctions[code](currPos, board);
 }

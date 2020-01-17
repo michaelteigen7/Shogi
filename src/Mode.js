@@ -59,7 +59,7 @@ class GameVAI extends GameMode {
   }
 
   take_turn(action, commands, board) {
-    if(this.isPlayersTurn) {
+    if (this.isPlayersTurn) {
       // Player's move
       if (action) this.do_action(action);
       this.isPlayersTurn = this.promoOptionActive;

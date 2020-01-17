@@ -24,8 +24,6 @@ export default class Engine {
     let engineBoard = encodeBoard(board, this.engineIsBlack);
 
     const choices = engineBoard.possibleActions(this.engineIsBlack);
-    console.log("Got engine choices:")
-    console.log(choices)
 
     const getLocalMaxiumum = actions => {
       // max of object
