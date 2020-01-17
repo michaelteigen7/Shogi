@@ -69,11 +69,10 @@ class GameVAI extends GameMode {
       if (engineChoice.drop) {
         this.do_action(() => commands.drop(engineChoice));
       } else {
-        this.do_action(() => commands.move(engineChoice));
-        console.log("Piece was moved")
         if (engineChoice.promote) {
-          console.log("Promoting piece")
           this.do_action(() => commands.promotePiece(engineChoice));
+        } else {
+          this.do_action(() => commands.move(engineChoice));
         }
       }
       this.isPlayersTurn = true;

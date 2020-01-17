@@ -10,8 +10,6 @@ import "./main.scss";
 /*
 TODOS:
 -Engine
--Engine promotion is currently broken
--Player is currently allowed to move opponenets pieces in versus mode
 -Need to adjust gameboard logic to apply to player and opponent
   logic rather than binding board orientation to black and white
 */
@@ -69,8 +67,9 @@ function App() {
     return newBoard;
   };
 
-  const promote_opponent_piece = action => {
-    const newBoard = board.promote_piece(action);
+  const opponent_promote_move = action => {
+    let newBoard = board.move_piece(action);
+    newBoard = newBoard.promote_piece(action);
     setBoard(newBoard);
     return newBoard;
   }
@@ -81,7 +80,7 @@ function App() {
     !mode.isPlayersTurn) {
       const commands = {
         move: move_piece, 
-        promotePiece: promote_opponent_piece, 
+        promotePiece: opponent_promote_move, 
         drop: drop_piece
       };
       mode.take_turn(null, commands, board);
