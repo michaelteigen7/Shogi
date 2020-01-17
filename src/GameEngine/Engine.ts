@@ -23,7 +23,9 @@ export default class Engine {
   calculate(board) {
     let engineBoard = encodeBoard(board, this.engineIsBlack);
 
-    const choices = engineBoard.possibleActions(false);
+    const choices = engineBoard.possibleActions(this.engineIsBlack);
+    console.log("Got engine choices:")
+    console.log(choices)
 
     const getLocalMaxiumum = actions => {
       // max of object
@@ -49,6 +51,7 @@ export default class Engine {
       return bestAction;
     }
 
+    if (choices.length < 1) throw TypeError;
     const engineMove = getLocalMaxiumum(choices);
 
     engineBoard = engineMove.drop ? engineBoard.drop_piece(engineMove) :

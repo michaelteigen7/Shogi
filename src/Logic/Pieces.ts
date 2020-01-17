@@ -38,15 +38,6 @@ class Piece implements PieceDef {
     return this.constructor.name;
   }
 
-  // To get possible moves. Will be overwritten in inheiritance
-  /*
-  indices around piece at blank position:
-  -------
-  |0|1|2|
-  |7| |3|
-  |6|5|4|
-  -------
-  */
   possibleMoves() {
     return this.isBlack
       ? getBlackOffsets(this.position, this.possibleMoveIndices)

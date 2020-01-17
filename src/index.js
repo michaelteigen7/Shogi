@@ -9,7 +9,7 @@ import "./main.scss";
 
 /*
 TODOS:
--Engine
+-Engine to read three moves ahead
 -Need to adjust gameboard logic to apply to player and opponent
   logic rather than binding board orientation to black and white
 */
@@ -21,23 +21,29 @@ function App() {
   const [board, setBoard] = useState(localStartBoard);
   // Mode is a game-flow-control object
   const [mode, setMode] = useState(new ReviewMode(localStartBoard));
-  // Selected is a Piece sub-class instance: it is a direct reference
+  // selected is a Piece sub-class instance: it is a direct reference
   // to the selected piece
   const [selected, select] = useState(null);
-  // highlighted is a 9x9 array of booleans
+  // highlighted is a 9x9 array of booleans. Will highlight possible
+  // piece moves on the board when a piece is selected
   const [highlighted, setHighlighted] = useState(highlightMatrix);
   // possibleMoves is an array of actions
   const [possibleMoves, setPossibleMoves] = useState([]);
+  // Front end needs to save the last action and offer the player 
+  // an option to promote a piece when necessary
   const [lastMove, setLastMove] = useState(null);
   const [promotionOption, togglePromotionOption] = useState(false);
   // By default, player will play black for now
-  const [playerMovesBlack, setBlackPlayer] = useState(true);
+  const [playerMovesBlack, setBlackPlayer] = useState(false);
 
   const move_piece = action => {
-    select(null); // Clear the selection
-    setLastMove(action); // record the last action for a promotion option
+    // Clear the selection
+    select(null);
+    // record the last action for a promotion option
+    setLastMove(action);
     const newBoard = board.move_piece(action);
-    setBoard(newBoard); // update the rendered board
+    // update the rendered board
+    setBoard(newBoard);
     // set the promotion option
     if (action.promote && action.actorIsPlayer) {
       mode.promoOptionActive = true;

@@ -85,7 +85,7 @@ class EngineBoard {
     let actions = [];
     for (let i = 0; i < this.board.length; i++) {
       const pieceCode = this.board[i];
-      if (pieceCode !== emptySquare && ((pieceCode & 0xf00) === colorCode)) {
+      if (pieceCode !== emptySquareCode && ((pieceCode & 0xf00) === colorCode)) {
         actions = actions.concat(getPossibleMoves(pieceCode, this.getCoordinates(i), this));
       }
     }
