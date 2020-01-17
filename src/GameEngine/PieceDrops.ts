@@ -37,17 +37,33 @@ export default function getDrops(board : object, dropIsBlack : boolean) : Action
           pawnDropIndices.push(i);
         } else {
           // create an action if it's not
-          drops.push(new Action([null, null], board.getCoordinates(i), false, 
-            true, false, pieceCode, dropColor));
+          drops.push(new Action({
+            currPos: [null, null], 
+            movePos: board.getCoordinates(i), 
+            capture: false, 
+            drop: true, 
+            promote: false, 
+            pieceType: pieceCode, 
+            pieceColor: dropColor,
+            actorIsPlayer: false
+          }));
         }
       }
     }
   }
   // Check for two pawns in a file rule
   const pawnDrops = twoPawnsFilter(pawnDropIndices, board).map(index => {
-    return new Action([null, null], board.getCoordinates(index), false, 
-      true, false, 0x1, dropColor)
-  });
+    return new Action({
+      currPos: [null, null], 
+      movePos: board.getCoordinates(index), 
+      capture: false, 
+      drop: true, 
+      promote: false, 
+      pieceType: 0x1, 
+      pieceColor: dropColor,
+      actorIsPlayer: false
+    }
+  )});
 
   return drops.concat(pawnDrops);
 }

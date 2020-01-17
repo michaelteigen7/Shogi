@@ -10,7 +10,7 @@ import "./main.scss";
 /*
 TODOS:
 -Engine
--Promote option is not passed to the engine
+-Engine promotion is currently broken
 -Player is currently allowed to move opponenets pieces in versus mode
 -Need to adjust gameboard logic to apply to player and opponent
   logic rather than binding board orientation to black and white
@@ -39,14 +39,20 @@ function App() {
     const newBoard = board.move_piece(action);
     setBoard(newBoard); // update the rendered board
     // set the promotion option
-    if (action.promote) {
+    if (action.promote && action.actorIsPlayer) {
       mode.promoOptionActive = true;
       togglePromotionOption(true);
       return null;
     } else return newBoard;
   };
 
-  const promote_piece = acceptPromote => {
+  const drop_piece = action => {  
+    const newBoard = board.drop_piece(action);
+    setBoard(newBoard);
+    return newBoard;
+  };
+
+  const promote_player_piece = acceptPromote => {
     let newBoard;
     if (acceptPromote) {
       newBoard = board.promote_piece(lastMove);
@@ -61,18 +67,22 @@ function App() {
     return newBoard;
   };
 
-  const drop_piece = action => {  
-    const newBoard = board.drop_piece(action);
+  const promote_opponent_piece = action => {
+    const newBoard = board.promote_piece(action);
     setBoard(newBoard);
     return newBoard;
-  };
+  }
 
   useEffect(() => {
     // Executed when it's not the player's turn and opponent is the AI
     if (mode && mode instanceof GameVAI && mode.gameInProgress && 
     !mode.isPlayersTurn) {
-      const actionRefs = {move: move_piece, drop: drop_piece};
-      mode.take_turn(null, actionRefs, board);
+      const commands = {
+        move: move_piece, 
+        promotePiece: promote_opponent_piece, 
+        drop: drop_piece
+      };
+      mode.take_turn(null, commands, board);
     }
   });
 
@@ -80,7 +90,7 @@ function App() {
   const actions = {
     do_action: action => mode.take_turn(action),
     movePiece: move_piece,
-    promotePiece: promote_piece,
+    promotePiece: promote_player_piece,
     dropPiece: drop_piece,
     clearHighlights: () => setHighlighted(highlightMatrix),
     create_game: () => {

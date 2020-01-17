@@ -85,42 +85,34 @@ class Piece implements PieceDef {
     if (this.position[0] === null) {
       const emptySquares = board.getEmptySquareLocations();
       return emptySquares.map(cell => {
-        const currPos = [null, null];
-        const dropPos = cell;
-        const capture = false;
-        const drop = true;
-        return new Action(currPos, dropPos, capture, drop);
+        return new Action({
+          currPos: [null, null], 
+          movePos: cell, 
+          capture: false, 
+          drop: true,
+          actorIsPlayer: true
+        });
       });
     }
-    // Get moves solely based on piece movement rules
-    let totalMoves = null;
-    if (this.isPromoted) {
-      totalMoves = this.isRanged
-        ? this.promotedPossibleMoves(board)
-        : this.promotedPossibleMoves();
-    } else {
-      totalMoves = this.isRanged
-        ? this.possibleMoves(board)
-        : this.possibleMoves();
-    }
+    // Otherwsie, get moves solely based on piece movement rules
+    // non-ranged pieces do not take the board argument, so it
+    // will be ignored for those pieces
+    const totalMoves = this.isPromoted ? 
+      this.promotedPossibleMoves(board) : this.possibleMoves(board);
     // Create actions from move arrays
-    const actions = [];
-    totalMoves.forEach(move => {
-      // Filter out of bounds moves
-      if (this.isMoveInBounds(move) && this.friendlyPieceCheck(board, move)) {
-        const captureMove = board[move[0]][move[1]] !== emptySquare;
-
-        // Include regular move
-        const action = new Action(this.position, move, captureMove);
-
-        // Include promotion option?
-        if (this.moveCanPromote(move)) {
-          action.promote = true;
-        }
-        actions.push(action);
-      }
-    });
-    return actions;
+    return (
+      totalMoves
+      .filter(move => this.isMoveInBounds(move) && 
+        this.friendlyPieceCheck(board, move))
+      .map(move => new Action({
+          currPos: this.position, 
+          movePos: move, 
+          capture: board[move[0]][move[1]] !== emptySquare, 
+          drop: false,
+          promote: this.moveCanPromote(move),
+          actorIsPlayer: true
+      }))
+    )
   }
 }
 

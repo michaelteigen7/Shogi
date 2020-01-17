@@ -73,18 +73,15 @@ export default function GamePiece(props) {
     if (isPieceDroppable() && props.piece === emptySquare) {
       // Create a drop option
       const selectedPiece = props.state.selected.value;
-      const capture = false;
-      const drop = true;
-      const promote = false;
-      return new Action(
-        selectedPiece.position,
-        props.boardPosition,
-        capture,
-        drop,
-        promote,
-        selectedPiece.getPieceType(),
-        selectedPiece.getColor()
-      );
+      return new Action({
+        currPos: selectedPiece,
+        movePos : props.boardPosition,
+        capture: false,
+        drop: true,
+        promote: false,
+        pieceType: selectedPiece.getPieceType(),
+        pieceColor: selectedPiece.getColor()
+      });
     } else return false;
   };
 

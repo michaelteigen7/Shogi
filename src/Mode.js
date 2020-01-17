@@ -58,26 +58,27 @@ class GameVAI extends GameMode {
     this.engine = new Engine(this.playerIsBlack);
   }
 
-  take_turn(action, actionRefs, board) {
+  take_turn(action, commands, board) {
     if(this.isPlayersTurn) {
       // Player's move
       if (action) this.do_action(action);
       this.isPlayersTurn = this.promoOptionActive;
     } else {
       // Engine's move
-      if (!actionRefs) throw TypeError;
       const engineChoice = this.engine.calculate(board);
       if (engineChoice.drop) {
-        this.do_action(() => actionRefs.drop(engineChoice));
+        this.do_action(() => commands.drop(engineChoice));
       } else {
-        this.do_action(() => actionRefs.move(engineChoice));
-      }
-      if (engineChoice.promote) {
-        this.do_action(actionRefs.promotePiece(true));
+        this.do_action(() => commands.move(engineChoice));
+        console.log("Piece was moved")
+        if (engineChoice.promote) {
+          console.log("Promoting piece")
+          this.do_action(() => commands.promotePiece(engineChoice));
+        }
       }
       this.isPlayersTurn = true;
     }
   }
 }
 
-export {GameVAI, ReviewMode};
+export { GameVAI, ReviewMode };

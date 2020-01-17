@@ -3,8 +3,10 @@ export interface ActionDef {
   movePos  : [number, number],
   capture : boolean,
   drop : boolean,
-  pieceType : string | number | null,
-  pieceColor : string | null
+  promote : boolean | undefined,
+  pieceType : string | number | undefined,
+  pieceColor : string | undefined,
+  actorIsPlayer : boolean |undefined
 };
 
 export interface GameBoardDef {

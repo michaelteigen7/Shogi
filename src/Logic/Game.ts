@@ -121,12 +121,25 @@ export default class Board implements GameBoardDef {
     }
   }
 
+  // For getting allowed piece drops
+  getEmptySquareLocations() : Array<[number, number]> {
+    const emptySquareLocations = [];
+    for (let i = 0; i < 9; i++) {
+      for (let j = 0; j < 9; j++) {
+        if (this.board[i][j] === emptySquare) {
+          emptySquareLocations.push([i, j]);
+        }
+      }
+    }
+    return emptySquareLocations;
+  }
+
   // Create a new board object that retains old references to pieces
   shallowCopy() {
     return new Board(this.board, this.pieceStands);
   }
 
-  // Get a completely new, identical baord object with new pieces
+  // Get a completely new, identical board object with new pieces
   copy(preservePieceTypes : boolean = false) {
     // copy board proper
     const newBoard = this.board.map(row => {
@@ -194,7 +207,7 @@ export default class Board implements GameBoardDef {
     return newBoard;
   };
 
-    promote_piece(lastMove : ActionDef) {
+  promote_piece(lastMove : ActionDef) {
     const i = lastMove.movePos[0];
     const j = lastMove.movePos[1];
 
@@ -204,24 +217,24 @@ export default class Board implements GameBoardDef {
     return newBoard;
   };
 
-    drop_piece(action : ActionDef) { 
-    // Get target square board coordinates
-    const i = action.movePos[0];
-    const j = action.movePos[1];
-    const newBoard = this.copy();
-    
-    // The array of the player's piecestand for a particular kind of piece
-    const pieceType = newBoard.pieceStands[action.pieceColor][action.pieceType];
+  drop_piece(action : ActionDef) { 
+  // Get target square board coordinates
+  const i = action.movePos[0];
+  const j = action.movePos[1];
+  const newBoard = this.copy();
+  
+  // The array of the player's piecestand for a particular kind of piece
+  const pieceType = newBoard.pieceStands[action.pieceColor][action.pieceType];
 
-    // Place the piece on the new board
-    newBoard.board[i][j] = pieceType[0];
-    // Update piece position
-    newBoard.board[i][j].position = [i, j];
-    // Remove a piece of the selected piece type off the piecestand
-    pieceType.shift();
-    
-    return newBoard;
-  };
+  // Place the piece on the new board
+  newBoard.board[i][j] = pieceType[0];
+  // Update piece position
+  newBoard.board[i][j].position = [i, j];
+  // Remove a piece of the selected piece type off the piecestand
+  pieceType.shift();
+  
+  return newBoard;
+};
 }
 
 function unhashBoard(hashedBoard : string) {

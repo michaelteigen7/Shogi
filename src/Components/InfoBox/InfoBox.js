@@ -8,11 +8,14 @@ export default function InfoBox(props) {
     <div 
       id="info-box"
     >
-      <PromotionOptionBox 
-        promotionOption={props.state.promotionOption.value}
-        setpromotionOption={props.state.promotionOption.set}
-        promotePiece={props.actions.promotePiece}
-      />
+      { props.color === 'black' ?
+        (<PromotionOptionBox 
+          promotionOption={props.state.promotionOption.value}
+          setpromotionOption={props.state.promotionOption.set}
+          promotePiece={props.actions.promotePiece}
+        />)
+        : null
+      }
       <HistoryNavigator 
         color={props.color}
         board={props.board}

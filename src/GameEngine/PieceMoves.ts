@@ -27,25 +27,20 @@ function moveFilter(board : object, movePos: [number, number],
   currPos : [number, number]) : ActionDef | boolean {
     if (!inBounds(movePos)) return false;
 
+
     const cappedPiece = board.getPiece(movePos);
     const piece = board.getPiece(currPos)
     const isPieceBlack = board.pieceIsBlack(piece);
-    if (cappedPiece === 0) {
-      return moveCanPromote(cappedPiece, currPos, movePos, isPieceBlack) ?
-        new Action(currPos, movePos, false, false, true) : 
-        new Action(currPos, movePos);
-    } 
-    else {
-      // Check friendly fire
-      if (isPieceBlack === board.pieceIsBlack(cappedPiece)) {
-        return false;
-      } else {
-        // If not friendly fire and not empty square, then capture
-        return moveCanPromote(piece, currPos, movePos, isPieceBlack) ?
-          new Action(currPos, movePos, true, false, true) : 
-          new Action(currPos, movePos, true);
-      }
-    }
+    const action = new Action({
+          currPos: currPos, 
+          movePos: movePos, 
+          capture: !(cappedPiece === 0), 
+          drop: false, 
+          promote: moveCanPromote(cappedPiece, currPos, movePos, isPieceBlack),
+          actorIsPlayer: false
+      });
+    // if pieces are different return action
+    return isPieceBlack !== board.pieceIsBlack(cappedPiece) && action; 
 }
 
 const getMoves = (indices, position, board) => {
@@ -69,8 +64,7 @@ function getRangedMoves(offsetLambdas, currPos : [number, number],
       while (action) {
         actions.push(action);
         if (action.capture) break;
-        position = [...action.movePos];
-        action = moveFilter(board, lambda(position), currPos);
+        action = moveFilter(board, lambda([...action.movePos]), currPos);
       }
     }
     return actions;
